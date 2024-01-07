@@ -36,23 +36,7 @@ class ParseTesting(TestCase):
 
         self.assertEqual(output, expected)
 
-
-    def test_return_foreign_key(self):
-        ddl_script = """
-                            CREATE TABLE Orders (
-                    OrderID int NOT NULL,
-                    OrderNumber int NOT NULL,
-                    PersonID int,
-                    PRIMARY KEY (OrderID),
-                    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)); 
-        """
-
-        output = parse_ddl_script(ddl_script)
-
-        print(json.dumps(output, indent=4))
-
-
-    def test_create_two_tables(self):
+    def test_create_tables(self):
 
         ddl_script = """
             

@@ -43,13 +43,13 @@ class Table:
 class Column:
 
     def __init__(self, name, type, size, references, unique, nullable, default, check):
-        self.name = name,
-        self.type = type,
-        self.size = size,
-        self.references = references,
-        self.unique = unique,
-        self.nullable = nullable,
-        self.default = default,
+        self.name = name
+        self.type = type
+        self.size = size
+        self.references = references
+        self.unique = unique
+        self.nullable = nullable
+        self.default = default
         self.check = check
 
     def __str__(self):
