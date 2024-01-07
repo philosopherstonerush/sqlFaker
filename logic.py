@@ -1,5 +1,7 @@
-from simple_ddl_parser import DDLParser
+import json
 
+from simple_ddl_parser import DDLParser
+from services import AWSResponse, Table, Column, Reference
 
 """
 
@@ -13,8 +15,15 @@ Given sql DDL script, return list of
 
 
 def parse_ddl_script(ddl):
-    parse = DDLParser(ddl)
-    return parse.run()
+
+    parse = DDLParser(ddl).run()
+
+    tables = []
+
+    for elem in parse:
+        tables.append(Table.from_json(elem))
+
+    print("done")
 
 
 """
