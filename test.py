@@ -32,3 +32,41 @@ class ParseTesting(TestCase):
         output = parse_ddl_script(s)
 
         self.assertEqual(output, expected)
+
+
+    def test_return_foreign_key(self):
+        ddl_script = """
+        
+            CREATE TABLE Orders (
+    OrderID int NOT NULL,
+    OrderNumber int NOT NULL,
+    PersonID int,
+    PRIMARY KEY (OrderID),
+    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+);
+        
+        """
+
+        parse_ddl_script(ddl_script)
+
+    def test_create_two_tables(self):
+
+        ddl_script = """
+            
+        CREATE TABLE Department(
+            DeptNo int PRIMARY KEY,
+            DName varchar(266),
+            Location varchar(266)
+        );
+
+        CREATE TABLE Employee(
+            EmpNo int,
+            EmpName varchar(266),
+            Salary int,
+            DeptNo int,
+            FOREIGN KEY (DeptNo) REFERENCES Department(DeptNo)
+        );
+        
+        """
+
+        parse_ddl_script(ddl_script)

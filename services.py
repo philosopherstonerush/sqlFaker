@@ -30,3 +30,8 @@ class Column:
     def __str__(self):
         # TODO: Can improve this
         return "check " + self.check + "name " + self.name
+
+class AWSResponse:
+
+    def __init__(self, statusc_code, headers, body, isBase64Encoded):
+        pass

@@ -1,3 +1,6 @@
+from simple_ddl_parser import DDLParser
+
+
 """
 
 Given sql DDL script, return list of
@@ -10,7 +13,8 @@ Given sql DDL script, return list of
 
 
 def parse_ddl_script(ddl):
-    pass
+    parse = DDLParser(ddl)
+    print(parse.run())
 
 
 """
