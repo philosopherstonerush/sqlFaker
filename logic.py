@@ -14,7 +14,7 @@ Given sql DDL script, return list of
 
 def parse_ddl_script(ddl):
     parse = DDLParser(ddl)
-    print(parse.run())
+    return parse.run()
 
 
 """

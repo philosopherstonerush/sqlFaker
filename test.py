@@ -1,6 +1,7 @@
 
 from unittest import TestCase
 from logic import parse_ddl_script
+import json
 
 # Write tests here
 
@@ -31,23 +32,25 @@ class ParseTesting(TestCase):
 
         output = parse_ddl_script(s)
 
+        print(json.dumps(output, indent=4))
+
         self.assertEqual(output, expected)
 
 
     def test_return_foreign_key(self):
         ddl_script = """
-        
-            CREATE TABLE Orders (
-    OrderID int NOT NULL,
-    OrderNumber int NOT NULL,
-    PersonID int,
-    PRIMARY KEY (OrderID),
-    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
-);
-        
+                            CREATE TABLE Orders (
+                    OrderID int NOT NULL,
+                    OrderNumber int NOT NULL,
+                    PersonID int,
+                    PRIMARY KEY (OrderID),
+                    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)); 
         """
 
-        parse_ddl_script(ddl_script)
+        output = parse_ddl_script(ddl_script)
+
+        print(json.dumps(output, indent=4))
+
 
     def test_create_two_tables(self):
 
@@ -69,4 +72,6 @@ class ParseTesting(TestCase):
         
         """
 
-        parse_ddl_script(ddl_script)
+        output = parse_ddl_script(ddl_script)
+
+        print(json.dumps(output, indent=4))
