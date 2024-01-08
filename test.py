@@ -1,14 +1,13 @@
-
 from unittest import TestCase
 from logic import parse_ddl_script
 import json
+
 
 # Write tests here
 
 class ParseTesting(TestCase):
 
     def test_handles_simple_ddl(self):
-
         s = """
         
         CREATE TABLE Books
@@ -36,8 +35,21 @@ class ParseTesting(TestCase):
 
         self.assertEqual(output, expected)
 
-    def test_create_tables(self):
+    def test_return_foreign_key(self):
+        ddl_script = """
+                            CREATE TABLE Orders (
+                    OrderID int NOT NULL,
+                    OrderNumber int NOT NULL,
+                    PersonID int,
+                    PRIMARY KEY (OrderID),
+                    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)); 
+        """
 
+        output = parse_ddl_script(ddl_script)
+
+        print(json.dumps(output, indent=4))
+
+    def test_create_two_tables(self):
         ddl_script = """
             
         CREATE TABLE Department(
@@ -59,3 +71,20 @@ class ParseTesting(TestCase):
         output = parse_ddl_script(ddl_script)
 
         print(json.dumps(output, indent=4))
+
+    def test_un_detectable_tables(self):
+        ddl = """CREATE TABLE authors (
+                        id INT(11) NOT NULL AUTO_INCREMENT,
+                        first_name VARCHAR(50) NOT NULL,
+                        last_name VARCHAR(50) NOT NULL,
+                        email VARCHAR(100) NOT NULL,
+                        birthdate DATE NOT NULL,
+                        added TIMESTAMP NOT NULL,
+                        PRIMARY KEY (id),
+                        UNIQUE INDEX email (email)
+                    );
+                """
+        output = parse_ddl_script(ddl)
+
+        print(json.dumps(output, indent=4))
+

@@ -19,11 +19,26 @@ class Table:
         self.table_name = table_name
 
     def add_columns(self, cols):
+        """
+        adds a list of columns objs
+        :param cols: Column objects
+        :return: None
+        """
+
         self.columns.extend(cols)
 
-    #def __str__(self):
-        #temp_list = [str(x) for x in self.columns]
-        #return str(temp_list)
+    def get_columns_json_list(self):
+        temp = []
+        for elem in self.columns:
+
+
+    def __str__(self):
+        temp_list = [str(x) for x in self.columns]
+        return str(temp_list)
+
+    def get_json_response(self):
+
+
 
     @staticmethod
     def from_json(json_dict):
@@ -52,7 +67,11 @@ class Column:
         self.default = default
         self.check = check
 
-    #def __str__(self):
+
+    def get_json_response(self):
+        pass
+
+    def __str__(self):
         # TODO: Can improve this
        # return "check " + self.check + "name " + self.name
 

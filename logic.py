@@ -7,6 +7,8 @@ from services import Table
 Given sql DDL script, return list of
     - Attribute Name
     - Attribute Datatype
+    - Conditions - Unique, Nullable 
+    - Checks
 
     TODO: add more above if appropriate
 
@@ -34,11 +36,23 @@ tables = []
 
 
 def parse_ddl_script(ddl):
-    parse = DDLParser(ddl).run()
-    global tables
+
+    # NOTE: A good design choice would be to separate the tables into difference scripts.
+
+    try:
+        parse = DDLParser(ddl, silent=False).run(output_mode="mysql")
+    except Exception:
+        return AWSResponse(
+            status_code=400,
+            body="error: DDL script cannot be parsed"
+        ).get_json_response()
+
+    tables = []
 
     for elem in parse:
         tables.append(Table.from_json(elem))
+
+
 
     return parse
 
