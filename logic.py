@@ -69,7 +69,7 @@ def to_generate (prov, size):
     data = []
     rows=10
     for i in range(rows):
-        print(prov,end=",")
+        print(prov, end=",")
     print()
 
 
