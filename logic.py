@@ -1,6 +1,6 @@
 from faker import Faker
 from simple_ddl_parser import DDLParser
-from services import Table
+from services import Table, AWSResponse
 
 """
 
@@ -13,26 +13,6 @@ Given sql DDL script, return list of
     TODO: add more above if appropriate
 
 """
-
-ddl_script = """
-
-        CREATE TABLE Department(
-            DeptNo int PRIMARY KEY,
-            DName varchar(266),
-            Location varchar(266)
-        );
-
-        CREATE TABLE Employee(
-            EmpNo int,
-            EmpName varchar(266),
-            Salary int,
-            DeptNo int,
-            FOREIGN KEY (DeptNo) REFERENCES Department(DeptNo)
-        );
-
-        """
-
-tables = []
 
 
 def parse_ddl_script(ddl):
@@ -78,18 +58,6 @@ Given a list of
     ]
 
 """
-
-def to_generate (prov, size):
-    data = []
-    rows=10
-    for i in range(rows):
-        print(prov, end=",")
-    print()
-
-
-
-parse_ddl_script(ddl_script)
-
 
 def generate_data():
     fake = Faker()

@@ -30,6 +30,7 @@ class Table:
     def get_columns_json_list(self):
         temp = []
         for elem in self.columns:
+            pass
 
 
     def __str__(self):
@@ -37,7 +38,7 @@ class Table:
         return str(temp_list)
 
     def get_json_response(self):
-
+        pass
 
 
     @staticmethod
@@ -73,7 +74,7 @@ class Column:
 
     def __str__(self):
         # TODO: Can improve this
-       # return "check " + self.check + "name " + self.name
+       return "check " + self.check + "name " + self.name
 
     #Return column instances
     @staticmethod
