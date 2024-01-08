@@ -21,9 +21,9 @@ class Table:
     def add_columns(self, cols):
         self.columns.extend(cols)
 
-    def __str__(self):
-        temp_list = [str(x) for x in self.columns]
-        return str(temp_list)
+    #def __str__(self):
+        #temp_list = [str(x) for x in self.columns]
+        #return str(temp_list)
 
     @staticmethod
     def from_json(json_dict):
@@ -52,10 +52,11 @@ class Column:
         self.default = default
         self.check = check
 
-    def __str__(self):
+    #def __str__(self):
         # TODO: Can improve this
-        return "check " + self.check + "name " + self.name
+       # return "check " + self.check + "name " + self.name
 
+    #Return column instances
     @staticmethod
     def from_json(json_dict):
         return Column(
@@ -84,6 +85,7 @@ class Reference:
     def from_json(json_dict):
         try:
             if len(json_dict) != 0:
+                #Returns references instances
                 return Reference(
                     json_dict["table"],
                     json_dict["schema"],
