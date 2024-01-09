@@ -1,3 +1,5 @@
+
+
 """
 
 Write methods that manipulate Table and column info here
@@ -32,14 +34,12 @@ class Table:
         for elem in self.columns:
             pass
 
-
     def __str__(self):
         temp_list = [str(x) for x in self.columns]
         return str(temp_list)
 
     def get_json_response(self):
         pass
-
 
     @staticmethod
     def from_json(json_dict):
@@ -68,15 +68,19 @@ class Column:
         self.default = default
         self.check = check
 
+        self.generated_data = None
+
+    def generate_data(self):
+        pass
 
     def get_json_response(self):
-        pass
+        return self.__dict__
 
     def __str__(self):
         # TODO: Can improve this
-       return "check " + self.check + "name " + self.name
+        return "check " + self.check + "name " + self.name
 
-    #Return column instances
+    # Return column instances
     @staticmethod
     def from_json(json_dict):
         return Column(
@@ -105,7 +109,7 @@ class Reference:
     def from_json(json_dict):
         try:
             if len(json_dict) != 0:
-                #Returns references instances
+                # Returns references instances
                 return Reference(
                     json_dict["table"],
                     json_dict["schema"],
@@ -116,6 +120,7 @@ class Reference:
                 )
         except Exception:
             return None
+
 
 class AWSResponse:
 
