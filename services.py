@@ -32,14 +32,20 @@ class Table:
     def get_columns_json_list(self):
         temp = []
         for elem in self.columns:
-            pass
+            res = elem.get_json_response()
+            temp.append(res)
+        return temp
 
     def __str__(self):
         temp_list = [str(x) for x in self.columns]
         return str(temp_list)
 
     def get_json_response(self):
-        pass
+        temp = []
+        for elem in self.columns:
+            res = elem.get_json_response()
+            temp.append(res)
+        return self.__dict__
 
     @staticmethod
     def from_json(json_dict):

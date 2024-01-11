@@ -8,6 +8,7 @@ simple-ddl-parser = "*"
 faker = "*"
 pytest = "*"
 sqlalchemy = "*"
+flask = "*"
 
 [dev-packages]
 
