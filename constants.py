@@ -89,6 +89,7 @@ class PostgreSqlDataType(Enum):
     JSONPATH = "JSONPATH"
 
 
+
 class SQLiteDataType(Enum):
     BLOB = "BLOB",
     BOOLEAN = "BOOLEAN",
@@ -133,7 +134,7 @@ class OracleDataType(Enum):
     REAL = "REAL"
 
 
-class MSSQLDataType:
+class MSSQLDataType(Enum):
     JSON = "JSON",
     INTEGER = "INTEGER",
     BIGINT = "BIGINT",
