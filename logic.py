@@ -49,10 +49,10 @@ def parse_ddl_script(ddl):
         ).get_json_response()
     except Exception as e:
         print(e)
-    return AWSResponse(
-        status_code=200,
-        body=json.dumps(parse)
-    ).get_json_response()
+        return AWSResponse(
+            status_code=400,
+            body="error: DDL script cannot be parsed"
+        ).get_json_response()
 
 
 """
