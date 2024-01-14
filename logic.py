@@ -34,16 +34,14 @@ def parse_ddl_script(ddl):
     # NOTE: A good design choice would be to separate the tables into difference scripts.
 
     try:
-        lowercased_string = ''.join(map(lambda x: x.lower(), ddl))
+        lowercased_string = ddl_script.lower().strip()
         SPLIT_SUBSTRING = "create table"
         tables_list = lowercased_string.split(SPLIT_SUBSTRING)
-        for i in range(len(tables_list)):
-            if tables_list[i] != "":
-                tables_list[i] = SPLIT_SUBSTRING + tables_list[i]
         parsed_result = []
-        for elem in tables_list:
-            if elem != "":
-                parse = DDLParser(elem, silent=True).run(output_mode="sql")
+        for i in range(len(tables_list)):
+            if tables_list[i]:
+                tables_list[i] = SPLIT_SUBSTRING + tables_list[i]
+                parse = DDLParser(tables_list[i]).run(output_mode="sql")
                 parsed_result.append(parse[0])
         return AWSResponse(
             status_code=200,
