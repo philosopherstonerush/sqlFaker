@@ -2,6 +2,7 @@ from flask import Flask
 from logic import parse_ddl_script
 from flask import request
 import json
+import sys
 
 app = Flask(__name__)
 

@@ -36,29 +36,30 @@ class ParseTesting(TestCase):
         self.assertEqual(output, expected)
 
     def test_return_foreign_key(self):
-        ddl_script = """
-                            CREATE TABLE Orders (
-                    OrderID int NOT NULL,
-                    OrderNumber int NOT NULL,
-                    PersonID int,
-                    PRIMARY KEY (OrderID),
-                    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)); 
-        """
+        ddl_script = """CREATE TABLE consultants(
+    id serial NOT NULL,
+    first_name varchar(100) NOT NULL,
+    last_name varchar(100) NOT NULL,
+    email varchar(200),
+    departments_id integer NOT NULL,
+    contract_date date
+); """
 
         output = parse_ddl_script(ddl_script)
 
         print(json.dumps(output, indent=4))
 
     def test_create_two_tables(self):
-        ddl_script = """
-            
-        CREATE TABLE Department(
-            DeptNo int PRIMARY KEY,
-            DName varchar(266),
-            Location varchar(266)
-        );
+        ddl_script = """CREATE TABLE Department( DeptNo int PRIMARY KEY, DName varchar(266), Location varchar(266) ); CREATE TABLE Employee( EmpNo int, EmpName varchar(266), Salary int, DeptNo int, FOREIGN KEY (DeptNo) REFERENCES Department(DeptNo) );"""
 
-        CREATE TABLE Employee(
+        output = parse_ddl_script(ddl_script)
+
+        print(json.dumps(output, indent=4))
+
+    def test_un_detectable_tables(self):
+        ddl = """
+        
+                CREATE TABLE Employee(
             EmpNo int,
             EmpName varchar(266),
             Salary int,
@@ -66,14 +67,8 @@ class ParseTesting(TestCase):
             FOREIGN KEY (DeptNo) REFERENCES Department(DeptNo)
         );
         
-        """
-
-        output = parse_ddl_script(ddl_script)
-
-        print(json.dumps(output, indent=4))
-
-    def test_un_detectable_tables(self):
-        ddl = """CREATE TABLE authors (
+        
+        CREATE TABLE authors (
                         id INT(11) NOT NULL AUTO_INCREMENT,
                         first_name VARCHAR(50) NOT NULL,
                         last_name VARCHAR(50) NOT NULL,
