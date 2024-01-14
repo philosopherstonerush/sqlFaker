@@ -84,7 +84,7 @@ class Column:
 
     def __str__(self):
         # TODO: Can improve this
-        return (f"check : {self.check} , name:{self.name}")
+        return f"check : {self.check} , name:{self.name}"
 
     # Return column instances
     @staticmethod
