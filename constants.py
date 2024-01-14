@@ -36,6 +36,7 @@ class MySQLDataType(Enum):
     VARBINARY = "VARBINARY",
     VARCHAR = "VARCHAR",
     YEAR = "YEAR",
+    SERIAL = "SERIAL"
 
 
 class PostgreSqlDataType(Enum):

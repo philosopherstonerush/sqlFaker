@@ -11,5 +11,5 @@ app = Flask(__name__)
 def get_parse_self():
     data = request.get_json()
     script = data["script"]
-    parse = parse_ddl_script(script)
+    parse = parse_ddl_script(script, True)
     return parse
