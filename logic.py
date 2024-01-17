@@ -2,7 +2,7 @@ import json
 from faker import Faker
 from simple_ddl_parser import DDLParser
 from services import AWSResponse, Table, Reference, Column
-from data_type_match import gen_data
+from data_type_match import GenData
 
 """
 
@@ -13,7 +13,27 @@ Given sql DDL script, return list of
     - Checks
 
 """
+ddl_script = """
 
+                CREATE TABLE Employee(
+            EmpNo int AUTO_INCREMENT,
+            EmpName varchar(266),
+            Salary int,
+            DeptNo int,
+        );
+
+
+        CREATE TABLE authors (
+                        id INT(11) NOT NULL AUTO_INCREMENT,
+                        first_name VARCHAR(50) NOT NULL,
+                        last_name VARCHAR(50) NOT NULL,
+                        email VARCHAR(100) NOT NULL,
+                        birthdate DATE NOT NULL,
+                        added TIMESTAMP NOT NULL,
+                        PRIMARY KEY (id),
+                        FOREIGN KEY (id) REFERENCES Employee (EmpNo)
+                    );
+                """
 
 def parse_ddl_script(ddl, opt):
     try:
@@ -65,20 +85,23 @@ Given a list of
 
 
 def generate_data(default, ddl_script):
-    if default == "YES":
+    if default:
         rows = 5
-        fake = gen_data()
+        fake = GenData()
         result = {}
         for x, i in enumerate(parse_ddl_script(ddl_script, False)):
             table = Table.from_json(i)
-            result[table.table_name] = []
+            result[table.table_name] = {}
             for i in table.get_columns_json_list():
                 if i['references']:
-                    generate = fake.get_provider_for_data_type(i["type"], i["size"], rows, i["references"].column)
-                    result[table.table_name].append(f"{fake.data_type}:{generate}")
+                    generate = fake.foreign_keymap(result,i["references"].table,i["references"].column,rows)
+                    result[table.table_name][i["name"]] = generate
+                elif i["autoincrement"]:
+                    generate= fake.AutoIncrement(i["type"],i["size"],rows)
+                    result[table.table_name][i["name"]] = generate
                 else:
                     generate = fake.get_provider_for_data_type(i["type"], i["size"], rows)
-                    result[table.table_name].append(f"{fake.data_type}:{generate}")
+                    result[table.table_name][i["name"]]=generate
 
         return result
     else:

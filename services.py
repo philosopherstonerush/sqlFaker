@@ -7,6 +7,13 @@ Write methods that manipulate Table and column info here
 """
 
 
+def exceptionAutoIncrement(json_dict):
+    try:
+        json_dict["autoincrement"]
+        return True
+    except Exception:
+        return False
+
 class Table:
 
     def __init__(self, columns, primary_key, alter, checks, index, partitioned_by, tablespace, schema, table_name):
@@ -64,7 +71,7 @@ class Table:
 
 class Column:
 
-    def __init__(self, name, type, size, references, unique, nullable, default, check):
+    def __init__(self, name, type, size, references, unique, nullable, default, check,autoincrement=None):
         self.name = name
         self.type = type
         self.size = size
@@ -73,8 +80,7 @@ class Column:
         self.nullable = nullable
         self.default = default
         self.check = check
-
-        self.generated_data = None
+        self.autoincrement = autoincrement
 
     def generate_data(self):
         pass
@@ -85,6 +91,7 @@ class Column:
     def __str__(self):
         # TODO: Can improve this
         return f"check : {self.check} , name:{self.name}"
+
 
     # Return column instances
     @staticmethod
@@ -97,7 +104,8 @@ class Column:
             json_dict["unique"],
             json_dict["nullable"],
             json_dict["default"],
-            json_dict["check"]
+            json_dict["check"],
+            json_dict["autoincrement"] if exceptionAutoIncrement(json_dict) else None
         )
 
 
