@@ -99,10 +99,10 @@ class GenData(Faker):
         return [result[tablename][colname][i] for i in range(samplesize)]
 
     def AutoIncrement(self, d_type, size,samplesize):
-        value = self.data_type_mapping[d_type.upper()]()
-        r=[]
+        value = str(self.data_type_mapping[d_type.upper()]())[:size]
+        r = []
         for _ in range(samplesize):
-            value=value+1
+            value = int(value)+1
             r.append(value)
         return r
 
