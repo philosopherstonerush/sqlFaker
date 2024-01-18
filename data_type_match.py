@@ -2,35 +2,33 @@ from constants import MySQLDataType, PostgreSqlDataType, OracleDataType, MSSQLDa
 from faker import Faker
 
 
-
-class gen_data(Faker):
-    def get_provider_for_data_type(self,data_type,charsize,samplesize,refcolumn=None):
-        self.seed_instance(self.random_int())
-        self.data_type=data_type.upper()
-        data_type_mapping = {
-            MySQLDataType.BIGINT: lambda: self.pyint(0, 9223372036854775808),
-            MySQLDataType.BINARY: lambda: self.pyint(0, 1),
-            MySQLDataType.BIT: lambda: self.pyint(0, 1),
-            MySQLDataType.BLOB: lambda: self.binary(),
-            MySQLDataType.BOOLEAN: lambda: self.pybool(),
-            MySQLDataType.CHAR: lambda: self.name(),
-            MySQLDataType.DATE: lambda: self.date_between(1753 - 1 - 1, 9999 - 12 - 31),
-            MySQLDataType.DATETIME: lambda: self.date_time_between(1753 - 1 - 1, 9999 - 12 - 31),
-            MySQLDataType.DECIMAL: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.DOUBLE: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.ENUM: lambda: self.enum(MySQLDataType),
-            MySQLDataType.FLOAT: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.INTEGER: lambda: self.pyint(0, 2147483647),
+class GenData(Faker):
+    def __init__(self):
+        super().__init__()
+        self.data_type_mapping = {
+            MySQLDataType.BIGINT.name: lambda: self.pyint(0, 9223372036854775808),
+            MySQLDataType.BINARY.name: lambda: self.pyint(0, 1),
+            MySQLDataType.BIT.name: lambda: self.pyint(0, 1),
+            MySQLDataType.BLOB.name: lambda: self.binary(),
+            MySQLDataType.BOOLEAN.name: lambda: self.pybool(),
+            MySQLDataType.CHAR.name: lambda: self.name(),
+            MySQLDataType.DATE.name: lambda: self.date_between(1753 - 1 - 1, 9999 - 12 - 31),
+            MySQLDataType.DATETIME.name: lambda: self.date_time_between(1753 - 1 - 1, 9999 - 12 - 31),
+            MySQLDataType.DECIMAL.name: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
+            MySQLDataType.DOUBLE.name: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
+            MySQLDataType.ENUM.name: lambda: self.enum(MySQLDataType),
+            MySQLDataType.FLOAT.name: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
+            MySQLDataType.INTEGER.name: lambda: self.pyint(0, 2147483647),
             "INT": lambda: self.pyint(0, 2147483647),
-            MySQLDataType.JSON: lambda: self.json(),
-            MySQLDataType.LONGBLOB: lambda: self.binary(),
-            MySQLDataType.LONGTEXT: lambda: self.sentence(),
-            MySQLDataType.MEDIUMBLOB: lambda: self.binary(),
-            MySQLDataType.MEDIUMINT: lambda: self.pyint(0, 8388607),
-            MySQLDataType.MEDIUMTEXT: lambda: self.text(16777215),
-            MySQLDataType.NCHAR: lambda: self.name(),
-            MySQLDataType.NVCHAR: lambda: self.word(),
-            MySQLDataType.NUMBERIC: lambda: self.pyint(),
+            MySQLDataType.JSON.name: lambda: self.json(),
+            MySQLDataType.LONGBLOB.name: lambda: self.binary(),
+            MySQLDataType.LONGTEXT.name: lambda: self.sentence(),
+            MySQLDataType.MEDIUMBLOB.name: lambda: self.binary(),
+            MySQLDataType.MEDIUMINT.name: lambda: self.pyint(0, 8388607),
+            MySQLDataType.MEDIUMTEXT.name: lambda: self.text(16777215),
+            MySQLDataType.NCHAR.name: lambda: self.name(),
+            MySQLDataType.NVCHAR.name: lambda: self.word(),
+            MySQLDataType.NUMBERIC.name: lambda: self.pyint(),
             "NUMBER": lambda: self.pyint(),
             "SET": lambda: self.enum(MySQLDataType),
             "SMALLINT": lambda: self.pyint(0, 32767),
@@ -89,9 +87,24 @@ class gen_data(Faker):
             "ROWVERSION": lambda: self.binary(),
             "UNIQUEIDENTIFIER": lambda: self.hexify("^^^^-^^^-^^^^-^^^^-^^^-^^^^"),
             "SQL_VARIANT": lambda: self.pyint(),
-            "XML": lambda: self.xml()
-
+            "XML": lambda: self.xml(),
+            "SERIAL": lambda: self.pyint(1, 2147483647)
         }
-        data = data_type_mapping.get(data_type.upper(), self.sentence)
+    def get_provider_for_data_type(self, data_type, charsize, samplesize):
+        self.data_type = data_type.upper()
+        data = self.data_type_mapping.get(data_type.upper(), self.sentence)
         return [str(data())[:charsize] for _ in range(samplesize)]
+
+    def foreign_keymap(self,result,tablename,colname,samplesize):
+        return [result[tablename][colname][i] for i in range(samplesize)]
+
+    def AutoIncrement(self, d_type, size,samplesize):
+        value = self.data_type_mapping[d_type.upper()]()
+        r=[]
+        for _ in range(samplesize):
+            value=value+1
+            r.append(value)
+        return r
+
+
 
