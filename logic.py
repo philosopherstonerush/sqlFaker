@@ -15,7 +15,7 @@ Given sql DDL script, return list of
 """
 
 
-def parse_ddl_script(ddl, opt):
+def parse_ddl_script(ddl, opt=False):
     try:
         lowercased_string = ''.join(map(lambda x: x.lower(), ddl))
         SPLIT_SUBSTRING = "create table"
@@ -27,7 +27,8 @@ def parse_ddl_script(ddl, opt):
         for elem in tables_list:
             if elem != "":
                 parse = DDLParser(elem, silent=True).run(output_mode="sql")
-                parsed_result.append(parse[0])
+                if parse:
+                    parsed_result.append(parse[0])
         if opt:
             return AWSResponse(
                 status_code=200,
@@ -36,7 +37,6 @@ def parse_ddl_script(ddl, opt):
         else:
             return parsed_result
     except Exception as e:
-        print(e)
         return AWSResponse(
             status_code=400,
             body="error: DDL script cannot be parsed"
