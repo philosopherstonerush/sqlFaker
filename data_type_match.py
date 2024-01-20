@@ -6,22 +6,22 @@ class GenData(Faker):
     def __init__(self):
         super().__init__()
         self.data_type_mapping = {
-            MySQLDataType.BIGINT.name: lambda: self.pyint(0, 9223372036854775808),
-            MySQLDataType.BINARY.name: lambda: self.pyint(0, 1),
-            MySQLDataType.BIT.name: lambda: self.pyint(0, 1),
-            MySQLDataType.BLOB.name: lambda: self.binary(),
-            MySQLDataType.BOOLEAN.name: lambda: self.pybool(),
-            MySQLDataType.CHAR.name: lambda: self.name(),
-            MySQLDataType.DATE.name: lambda: self.date_between(1753 - 1 - 1, 9999 - 12 - 31),
-            MySQLDataType.DATETIME.name: lambda: self.date_time_between(1753 - 1 - 1, 9999 - 12 - 31),
-            MySQLDataType.DECIMAL.name: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.DOUBLE.name: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.ENUM.name: lambda: self.enum(MySQLDataType),
-            MySQLDataType.FLOAT.name: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.INTEGER.name: lambda: self.pyint(0, 2147483647),
+            MySQLDataType.BIGINT.value: lambda: self.pyint(0, 9223372036854775808),
+            MySQLDataType.BINARY.value: lambda: self.pyint(0, 1),
+            MySQLDataType.BIT.value: lambda: self.pyint(0, 1),
+            MySQLDataType.BLOB.value: lambda: self.binary(),
+            MySQLDataType.BOOLEAN.value: lambda: self.pybool(),
+            MySQLDataType.CHAR.value: lambda: self.name(),
+            MySQLDataType.DATE.value: lambda: self.date_between(1753 - 1 - 1, 9999 - 12 - 31),
+            MySQLDataType.DATETIME.value: lambda: self.date_time_between(1753 - 1 - 1, 9999 - 12 - 31),
+            MySQLDataType.DECIMAL.value: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
+            MySQLDataType.DOUBLE.value: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
+            MySQLDataType.ENUM.value: lambda: self.enum(MySQLDataType),
+            MySQLDataType.FLOAT.value: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
+            MySQLDataType.INTEGER.value: lambda: self.pyint(0, 2147483647),
             "INT": lambda: self.pyint(0, 2147483647),
-            MySQLDataType.JSON.name: lambda: self.json(),
-            MySQLDataType.LONGBLOB.name: lambda: self.binary(),
+            MySQLDataType.JSON.value: lambda: self.json(),
+            MySQLDataType.LONGBLOB.value: lambda: self.binary(),
             MySQLDataType.LONGTEXT.name: lambda: self.sentence(),
             MySQLDataType.MEDIUMBLOB.name: lambda: self.binary(),
             MySQLDataType.MEDIUMINT.name: lambda: self.pyint(0, 8388607),
@@ -90,21 +90,19 @@ class GenData(Faker):
             "XML": lambda: self.xml(),
             "SERIAL": lambda: self.pyint(1, 2147483647)
         }
+
     def get_provider_for_data_type(self, data_type, charsize, samplesize):
         self.data_type = data_type.upper()
         data = self.data_type_mapping.get(data_type.upper(), self.sentence)
         return [str(data())[:charsize] for _ in range(samplesize)]
 
-    def foreign_keymap(self,result,tablename,colname,samplesize):
+    def foreign_keymap(self, result, tablename, colname, samplesize):
         return [result[tablename][colname][i] for i in range(samplesize)]
 
-    def AutoIncrement(self, d_type, size,samplesize):
+    def AutoIncrement(self, d_type, size, samplesize):
         value = str(self.data_type_mapping[d_type.upper()]())[:size]
         r = []
         for _ in range(samplesize):
-            value = int(value)+1
+            value = int(value) + 1
             r.append(value)
         return r
-
-
-

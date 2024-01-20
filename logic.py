@@ -13,30 +13,9 @@ Given sql DDL script, return list of
     - Checks
 
 """
-ddl_script = """
-
-                CREATE TABLE Employee(
-            EmpNo int AUTO_INCREMENT,
-            EmpName varchar(266),
-            Salary int,
-            DeptNo int,
-        );
 
 
-        CREATE TABLE authors (
-                        id INT(5) NOT NULL,
-                        a_id int(1) AUTO_INCREMENT,
-                        first_name VARCHAR(50) NOT NULL,
-                        last_name VARCHAR(50) NOT NULL,
-                        email VARCHAR(100) NOT NULL,
-                        birthdate DATE NOT NULL,
-                        added TIMESTAMP NOT NULL,
-                        PRIMARY KEY (id),
-                        FOREIGN KEY (id) REFERENCES Employee (EmpNo)
-                    );
-                """
-
-def parse_ddl_script(ddl, opt=False):
+def parse_ddl_script(ddl_script, opt=False):
     try:
         lowercased_string = ddl_script.lower().strip()
         SPLIT_SUBSTRING = "create table"
@@ -87,26 +66,40 @@ Given a list of
 
 """
 
+"""
 
-def generate_data(default, ddl_script):
-    if default:
-        rows = 5
-        fake = GenData()
-        result = {}
-        for x, i in enumerate(parse_ddl_script(ddl_script, False)):
-            table = Table.from_json(i)
-            result[table.table_name] = {}
-            for i in table.get_columns_json_list():
-                if i['references']:
-                    generate = fake.foreign_keymap(result,i["references"].table,i["references"].column,rows)
-                    result[table.table_name][i["name"]] = generate
-                elif i["autoincrement"]:
-                    generate= fake.AutoIncrement(i["type"],i["size"],rows)
-                    result[table.table_name][i["name"]] = generate
-                else:
-                    generate = fake.get_provider_for_data_type(i["type"], i["size"], rows)
-                    result[table.table_name][i["name"]]=generate
+{"custom_data":"{"hm":{"consultants":{"columnProviders":[{"name":"id","provider":"NONE","subProvider":"NONE"},{"name":"first_name","provider":"NONE","subProvider":"NONE"},{"name":"last_name","provider":"NONE","subProvider":"NONE"},{"name":"email","provider":"NONE","subProvider":"NONE"},{"name":"departments_id","provider":"NONE","subProvider":"NONE"},{"name":"contract_date","provider":"NONE","subProvider":"NONE"}],"tableName":null}}}","script":"/* Try generating fake data with this or enter your own */
+CREATE TABLE consultants(
+    id serial NOT NULL,
+    first_name varchar(100) NOT NULL,
+    last_name varchar(100) NOT NULL,
+    email varchar(200),
+    departments_id integer NOT NULL,
+    contract_date date
+); "}
 
-        return result
-    else:
-        pass
+"""
+
+
+def generate_data(ddl_script, custom_data, size=5):
+    rows = 5
+    fake = GenData()
+    result = {}
+    parsed_info = parse_ddl_script(ddl_script)
+    for x, i in enumerate(parsed_info):
+        table = Table.from_json(i)
+        result[table.table_name] = {}
+        for i in table.get_columns_json_list():
+            if i['references']:
+                generate = fake.foreign_keymap(result, i["references"].table, i["references"].column, rows)
+                result[table.table_name][i["name"]] = generate
+            elif i["autoincrement"]:
+                generate = fake.AutoIncrement(i["type"], i["size"], rows)
+                result[table.table_name][i["name"]] = generate
+            else:
+                generate = fake.get_provider_for_data_type(i["type"], i["size"], rows)
+                result[table.table_name][i["name"]] = generate
+    return AWSResponse(
+        status_code=400,
+        body=json.dumps(result)
+    )
