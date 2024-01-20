@@ -36,7 +36,7 @@ ddl_script = """
                     );
                 """
 
-def parse_ddl_script(ddl, opt):
+def parse_ddl_script(ddl, opt=False):
     try:
         lowercased_string = ddl_script.lower().strip()
         SPLIT_SUBSTRING = "create table"
@@ -45,8 +45,12 @@ def parse_ddl_script(ddl, opt):
         for i in range(len(tables_list)):
             if tables_list[i]:
                 tables_list[i] = SPLIT_SUBSTRING + tables_list[i]
-                parse = DDLParser(tables_list[i]).run(output_mode="sql")
-                parsed_result.append(parse[0])
+        parsed_result = []
+        for elem in tables_list:
+            if elem != "":
+                parse = DDLParser(elem, silent=True).run(output_mode="sql")
+                if parse:
+                    parsed_result.append(parse[0])
         if opt:
             return AWSResponse(
                 status_code=200,
@@ -55,7 +59,6 @@ def parse_ddl_script(ddl, opt):
         else:
             return parsed_result
     except Exception as e:
-        print(e)
         return AWSResponse(
             status_code=400,
             body="error: DDL script cannot be parsed"

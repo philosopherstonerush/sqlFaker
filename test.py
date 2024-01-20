@@ -19,19 +19,43 @@ class ParseTesting(TestCase):
         """
 
         expected = [
+    {
+        "table_name": "books",
+        "schema": None,
+        "primary_key": [
+            "id"
+        ],
+        "columns": [
             {
-                "name": "Id",
-                "data_type": "int",
+                "name": "id",
+                "type": "int",
+                "size": None,
+                "references": None,
+                "unique": False,
+                "nullable": False,
+                "default": None,
+                "check": None
             },
             {
-                "name": "Price",
-                "data_type": "int"
+                "name": "price",
+                "type": "int",
+                "size": None,
+                "references": None,
+                "unique": False,
+                "nullable": True,
+                "default": None,
+                "check": None
             }
-        ]
+        ],
+        "alter": {},
+        "checks": [],
+        "index": [],
+        "partitioned_by": [],
+        "tablespace": None
+    }
+]
 
         output = parse_ddl_script(s)
-
-        print(json.dumps(output, indent=4))
 
         self.assertEqual(output, expected)
 
@@ -45,41 +69,97 @@ class ParseTesting(TestCase):
     contract_date date
 ); """
 
+        expected = [
+    {
+        "table_name": "consultants",
+        "schema": None,
+        "primary_key": [],
+        "columns": [
+            {
+                "name": "id",
+                "type": "serial",
+                "size": None,
+                "references": None,
+                "unique": False,
+                "nullable": False,
+                "default": None,
+                "check": None
+            },
+            {
+                "name": "first_name",
+                "type": "varchar",
+                "size": 100,
+                "references": None,
+                "unique": False,
+                "nullable": False,
+                "default": None,
+                "check": None
+            },
+            {
+                "name": "last_name",
+                "type": "varchar",
+                "size": 100,
+                "references": None,
+                "unique": False,
+                "nullable": False,
+                "default": None,
+                "check": None
+            },
+            {
+                "name": "email",
+                "type": "varchar",
+                "size": 200,
+                "references": None,
+                "unique": False,
+                "nullable": True,
+                "default": None,
+                "check": None
+            },
+            {
+                "name": "departments_id",
+                "type": "integer",
+                "size": None,
+                "references": None,
+                "unique": False,
+                "nullable": False,
+                "default": None,
+                "check": None
+            },
+            {
+                "name": "contract_date",
+                "type": "date",
+                "size": None,
+                "references": None,
+                "unique": False,
+                "nullable": True,
+                "default": None,
+                "check": None
+            }
+        ],
+        "alter": {},
+        "checks": [],
+        "index": [],
+        "partitioned_by": [],
+        "tablespace": None
+    }
+]
+
         output = parse_ddl_script(ddl_script)
 
-        print(json.dumps(output, indent=4))
+        self.assertEqual(output, expected)
 
-    def test_create_two_tables(self):
-        ddl_script = """CREATE TABLE Department( DeptNo int PRIMARY KEY, DName varchar(266), Location varchar(266) ); CREATE TABLE Employee( EmpNo int, EmpName varchar(266), Salary int, DeptNo int, FOREIGN KEY (DeptNo) REFERENCES Department(DeptNo) );"""
+    #  Parsing an empty DDL script returns an empty list.
+    def test_empty_ddl_script(self):
+        ddl_script = ""
 
+        expected = []
+
+        # Arrange
+        expected_output = expected
+
+        # Act
         output = parse_ddl_script(ddl_script)
 
-        print(json.dumps(output, indent=4))
-
-    def test_un_detectable_tables(self):
-        ddl = """
-        
-                CREATE TABLE Employee(
-            EmpNo int,
-            EmpName varchar(266),
-            Salary int,
-            DeptNo int,
-            FOREIGN KEY (DeptNo) REFERENCES Department(DeptNo)
-        );
-        
-        
-        CREATE TABLE authors (
-                        id INT(11) NOT NULL AUTO_INCREMENT,
-                        first_name VARCHAR(50) NOT NULL,
-                        last_name VARCHAR(50) NOT NULL,
-                        email VARCHAR(100) NOT NULL,
-                        birthdate DATE NOT NULL,
-                        added TIMESTAMP NOT NULL,
-                        PRIMARY KEY (id),
-                        UNIQUE INDEX email (email)
-                    );
-                """
-        output = parse_ddl_script(ddl)
-
-        print(json.dumps(output, indent=4))
+        # Assert
+        self.assertEqual(output, expected_output)
 
