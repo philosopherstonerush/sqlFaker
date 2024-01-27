@@ -2,7 +2,7 @@ from unittest import TestCase
 from logic import parse_ddl_script
 import json
 import constants
-from data_type_match import get_func_for_data_type
+from data_type_match import get_func_for_data_type, data_func_map
 
 # Write tests here
 
@@ -237,3 +237,25 @@ class ParseTesting(TestCase):
         result = func(**params)
 
         print(result)
+
+    def test_all_providers(self):
+        all_keys = list(data_func_map.keys())
+        all_keys_separated = []
+        for key in all_keys:
+            if isinstance(key, tuple):
+                all_keys_separated.append(key[0])
+            else:
+                all_keys_separated.append(key)
+        for key in all_keys_separated:
+
+            func_dict = get_func_for_data_type(key)
+
+            func = func_dict.get("func")
+            params = func_dict.get("params")
+
+            if "custom" in func.__name__:
+                result = func(params)
+            else:
+                result = func(**params)
+
+            print(key + ": " + str(result))
