@@ -2,7 +2,7 @@ import json
 from faker import Faker
 from simple_ddl_parser import DDLParser
 from services import AWSResponse, Table, Reference, Column
-from data_type_match import GenData
+# from data_type_match import GenData
 
 """
 

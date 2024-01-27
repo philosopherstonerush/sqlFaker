@@ -1,7 +1,8 @@
 from unittest import TestCase
 from logic import parse_ddl_script
 import json
-
+import constants
+from data_type_match import get_func_for_data_type, data_func_map
 
 # Write tests here
 
@@ -163,3 +164,98 @@ class ParseTesting(TestCase):
         # Assert
         self.assertEqual(output, expected_output)
 
+    def test_provider_mapping_for_BIGINT(self):
+
+        data_type = constants.MySQLDataType.BIGINT.value
+
+        func_dict = get_func_for_data_type(data_type)
+
+        func = func_dict.get("func")
+        params = func_dict.get("params")
+
+        result = func(**params)
+
+        print(result)
+
+    def test_provider_mapping_for_CITEXT(self):
+
+        data_type = constants.PostgreSqlDataType.CITEXT.value
+
+        func_dict = get_func_for_data_type(data_type)
+
+        func = func_dict.get("func")
+        params = func_dict.get("params")
+
+        result = func(**params)
+
+        print(result)
+
+    def test_provider_mapping_for_JSON(self):
+        data_type = constants.MySQLDataType.JSON.value
+
+        func_dict = get_func_for_data_type(data_type)
+
+        func = func_dict.get("func")
+        params = func_dict.get("params")
+
+        result = func(**params)
+
+        print(result)
+
+    def test_provider_mapping_for_DATE(self):
+        data_type = constants.MySQLDataType.DATE.value
+
+        func_dict = get_func_for_data_type(data_type)
+
+        func = func_dict.get("func")
+        params = func_dict.get("params")
+
+        result = func(**params)
+
+        print(result)
+
+    def test_provider_mapping_for_numrange(self):
+        data_type = constants.PostgreSqlDataType.NUMRANGE.value
+
+        func_dict = get_func_for_data_type(data_type)
+
+        func = func_dict.get("func")
+        params = func_dict.get("params")
+
+        result = func(**params)
+
+        print(result)
+
+    def test_provider_mapping_for_daterange(self):
+        data_type = constants.PostgreSqlDataType.DATERANGE.value
+
+        func_dict = get_func_for_data_type(data_type)
+
+        func = func_dict.get("func")
+        params = func_dict.get("params")
+
+        result = func(**params)
+
+        print(result)
+
+    def test_all_providers(self):
+        all_keys = list(data_func_map.keys())
+        all_keys_separated = []
+        for key in all_keys:
+            if isinstance(key, tuple):
+                all_keys_separated.append(key[0])
+            else:
+                all_keys_separated.append(key)
+        for key in all_keys_separated:
+
+            func_dict = get_func_for_data_type(key)
+
+            func = func_dict.get("func")
+            params = func_dict.get("params")
+
+            if "custom" in func.__name__:
+                result = func(params)
+            else:
+                result = func(**params)
+
+            print(key + ": " + str(result))

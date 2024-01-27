@@ -1,5 +1,4 @@
 
-
 """
 
 Write methods that manipulate Table and column info here
@@ -71,7 +70,7 @@ class Table:
 
 class Column:
 
-    def __init__(self, name, type, size, references, unique, nullable, default, check,autoincrement=None):
+    def __init__(self, name, type, size, references, unique, nullable, default, check ,autoincrement=None):
         self.name = name
         self.type = type
         self.size = size

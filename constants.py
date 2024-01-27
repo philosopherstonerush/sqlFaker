@@ -38,6 +38,9 @@ class MySQLDataType(Enum):
     YEAR = "YEAR",
     SERIAL = "SERIAL"
 
+    def __str__(self):
+        return str(self.value)
+
 
 class PostgreSqlDataType(Enum):
     INTEGER = "INTEGER",
@@ -89,6 +92,8 @@ class PostgreSqlDataType(Enum):
     JSONB = "JSONB",
     JSONPATH = "JSONPATH"
 
+    def __str__(self):
+        return str(self.value)
 
 
 class SQLiteDataType(Enum):
@@ -108,6 +113,9 @@ class SQLiteDataType(Enum):
     TIMESTAMP = "TIMESTAMP",
     VARCHAR = "VARCHAR",
     REAL = "REAL"
+
+    def __str__(self):
+        return str(self.value)
 
 
 class OracleDataType(Enum):
@@ -133,6 +141,9 @@ class OracleDataType(Enum):
     NVARCHAR2 = "NVARCHAR2",
     ROWID = "ROWID",
     REAL = "REAL"
+
+    def __str__(self):
+        return str(self.value)
 
 
 class MSSQLDataType(Enum):
@@ -169,3 +180,6 @@ class MSSQLDataType(Enum):
     UNIQUEIDENTIFIER = "UNIQUEIDENTIFIER",
     SQL_VARIANT = "SQL_VARIANT",
     XML = "XML"
+
+    def __str__(self):
+        return str(self.value)
