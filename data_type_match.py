@@ -1,108 +1,144 @@
+import datetime
+
 from constants import MySQLDataType, PostgreSqlDataType, OracleDataType, MSSQLDataType
 from faker import Faker
 
 
-class GenData(Faker):
-    def __init__(self):
-        super().__init__()
-        self.data_type_mapping = {
-            MySQLDataType.BIGINT.value: lambda: self.pyint(0, 9223372036854775808),
-            MySQLDataType.BINARY.value: lambda: self.pyint(0, 1),
-            MySQLDataType.BIT.value: lambda: self.pyint(0, 1),
-            MySQLDataType.BLOB.value: lambda: self.binary(),
-            MySQLDataType.BOOLEAN.value: lambda: self.pybool(),
-            MySQLDataType.CHAR.value: lambda: self.name(),
-            MySQLDataType.DATE.value: lambda: self.date_between(1753 - 1 - 1, 9999 - 12 - 31),
-            MySQLDataType.DATETIME.value: lambda: self.date_time_between(1753 - 1 - 1, 9999 - 12 - 31),
-            MySQLDataType.DECIMAL.value: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.DOUBLE.value: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.ENUM.value: lambda: self.enum(MySQLDataType),
-            MySQLDataType.FLOAT.value: lambda: self.pyfloat(min_value=0, max_value=214748.3647),
-            MySQLDataType.INTEGER.value: lambda: self.pyint(0, 2147483647),
-            "INT": lambda: self.pyint(0, 2147483647),
-            MySQLDataType.JSON.value: lambda: self.json(),
-            MySQLDataType.LONGBLOB.value: lambda: self.binary(),
-            MySQLDataType.LONGTEXT.name: lambda: self.sentence(),
-            MySQLDataType.MEDIUMBLOB.name: lambda: self.binary(),
-            MySQLDataType.MEDIUMINT.name: lambda: self.pyint(0, 8388607),
-            MySQLDataType.MEDIUMTEXT.name: lambda: self.text(16777215),
-            MySQLDataType.NCHAR.name: lambda: self.name(),
-            MySQLDataType.NVCHAR.name: lambda: self.word(),
-            MySQLDataType.NUMBERIC.name: lambda: self.pyint(),
-            "NUMBER": lambda: self.pyint(),
-            "SET": lambda: self.enum(MySQLDataType),
-            "SMALLINT": lambda: self.pyint(0, 32767),
-            "REAL": lambda: self.pyfloat(),
-            "TEXT": lambda: self.name,
-            "TIME": lambda: self.time(),
-            "TIMESTAMP": lambda: f"{self.date_time_between()}{self.timezone()}",
-            "TINYBLOB": lambda: self.binary(),
-            "TINYINT": lambda: self.pyint(0, 255),
-            "TINYTEXT": lambda: self.text(255),
-            "VARBINARY": lambda: self.pyint(0, 1),
-            "VARCHAR": lambda: self.word(),
-            "YEAR": lambda: self.year(),
-            "INET": lambda: self.ipv6(),
-            "CIDR": lambda: self.ipv4(),
-            "CITEXT": lambda: self.pystr().lower(),
-            "UUID": lambda: self.uuid4(),
-            "MACADDR": lambda: self.mac_address(),
-            "MACADDR8": lambda: self.hexify("^^:^^:^^:^^:^^:^^:^^:^^"),
-            "OID": lambda: self.pyint(),
-            "REGCLASS": lambda: self.name(),
-            "REGCONFIG": lambda: self.language_name(),
-            "DOUBLE_PRECISION": lambda: self.pyfloat(right_digits=15),
-            "BYTEA": lambda: self.binary(),
-            "INTERVAL": lambda: self.time(),
-            "ARRAY": lambda: self.texts(),
-            "HSTORE": lambda: self.json_bytes(),
-            "INT4RANGE": lambda: f"[{self.pyint(1, 100)},{self.pyint(101, 200)}]",
-            "INT8RANGE": lambda: f"[{self.pyint(1, 1000)},{self.pyint(1001, 2000)}]",
-            "NUMRANGE": lambda: f"[{self.pyint(1.0, 100.0)},{self.pyint(100.0, 200.0)}]",
-            "DATERANGE": lambda: f"[{self.date_between(1753 - 1 - 1, 9999 - 12 - 31)},{self.date_between(1753 - 1 - 1, 9999 - 12 - 31)}]",
-            "INT4MULTIRANGE": lambda: f"[[{self.pyint(1, 100)},{self.pyint(101, 200)}],[{self.pyint(1, 100)},{self.pyint(101, 200)}]]",
-            "INT8MULTIRANGE": lambda: f"[[{self.pyint(1, 1000)},{self.pyint(1001, 2000)}],[{self.pyint(1, 1000)},{self.pyint(1001, 2000)}]]",
-            "NUMMULTIRANGE": lambda: f"[[{self.pyint(1.0, 100.0)},{self.pyint(100.0, 200.0)}],[{self.pyint(1.0, 100.0)},{self.pyint(100.0, 200.0)}]]",
-            "DATEMULTIRANGE": lambda: f"[[{self.date_between(1753 - 1 - 1, 9999 - 12 - 31)},{self.date_between(1753 - 1 - 1, 9999 - 12 - 31)}],[{self.date_between(1753 - 1 - 1, 9999 - 12 - 31)},{self.date_between(1753 - 1 - 1, 9999 - 12 - 31)}]]",
-            "TSVECTOR": lambda: f"'{self.text()}'::tsvector",
-            "TSQUERY": lambda: "&".join([self.word() for _ in range(3)]),
-            "TSMULTIRANGE": lambda: f"[[{self.date_time_between()},{self.date_time_between()}],[{self.date_time_between()},{self.date_time_between()}]]",
-            "TSTZMULTIRANGE": lambda: f"[[{self.date_time_between()}{self.timezone()},{self.date_time_between()}{self.timezone()}],[{self.date_time_between()}{self.timezone()},{self.date_time_between()}{self.timezone()}]]",
-            "TSRANGE": lambda: f"[{self.date_time_between()},{self.date_time_between()}]",
-            "TSZTRANGE": lambda: f"[{self.date_time_between()}{self.timezone()},{self.date_time_between()}{self.timezone()}]",
-            "JSONB": lambda: self.json_bytes(),
-            "BFILE": lambda: self.binary(),
-            "CLOB": lambda: self.pystr(214483647),
-            "NCLOB": lambda: self.pystr(2147483647),
-            "RAW": lambda: self.binary(),
-            "BINARY_DOUBLE": lambda: self.pyfloat(min_value=-9.999999999999999999999999,
-                                                  max_value=9.9999999999999999999999),
-            "BINARY_FLOAT": lambda: self.pyfloat(min_value=-9.99999999999, max_value=9.9999999999),
-            "LONG": lambda: self.pyfloat(),
-            "NVARCHAR2": lambda: self.word(),
-            "ROWID": lambda: self.pystr(),
-            "DATETIME2": lambda: self.date_time_between(1753 - 1 - 1, 9999 - 12 - 31),
-            "DATETIMEOFFSET": lambda: self.date_time(),
-            "SMALLDATETIME": lambda: self.date_time_between(1900 - 1 - 1, 2079 - 6 - 6),
-            "ROWVERSION": lambda: self.binary(),
-            "UNIQUEIDENTIFIER": lambda: self.hexify("^^^^-^^^-^^^^-^^^^-^^^-^^^^"),
-            "SQL_VARIANT": lambda: self.pyint(),
-            "XML": lambda: self.xml(),
-            "SERIAL": lambda: self.pyint(1, 2147483647)
-        }
+fake = Faker()
 
-    def get_provider_for_data_type(self, data_type, charsize, samplesize):
-        self.data_type = data_type.upper()
-        data = self.data_type_mapping.get(data_type.upper(), self.sentence)
-        return [str(data())[:charsize] for _ in range(samplesize)]
 
-    def foreign_keymap(self, result, tablename, colname, samplesize):
-        return [result[tablename][colname][i] for i in range(samplesize)]
+# custom generation code
 
-    def AutoIncrement(self, d_type, size, samplesize):
-        value = str(self.data_type_mapping[d_type.upper()]())[:size]
-        r = []
-        for _ in range(samplesize):
-            value = int(value) + 1
-            r.append(value)
-        return r
+def intrange_custom(params=None):
+    lowerBound = fake.pyint(**params)
+    return f"[{lowerBound}, {lowerBound + fake.pyint()}]"
+
+
+def numrange_custom(params=None):
+    number = fake.pyfloat(left_digits=2, right_digits=1)
+    number_to_add = fake.pyfloat(left_digits=1, right_digits=1)
+    return f"[{number}, {number + number_to_add})"
+
+
+def daterange_custom(params=None):
+    date = fake.date()
+    date_obj = datetime.datetime.strptime(date, "%Y-%m-%d")
+    time_delta = datetime.timedelta(days=30)
+    date_future_obj = date_obj + time_delta
+    return f"[{date_obj.date()}, {date_future_obj.date()}]"
+
+
+def multiintrange_custom(params=None):
+    if params:
+        return f"[{intrange_custom(**params)}, {intrange_custom(**params)}]"
+    else:
+        raise Exception("multirange_custom is given None as a parameter")
+
+
+def multinumrange_custom(params=None):
+    if params:
+        return f"[{numrange_custom(**params)}, {numrange_custom(**params)}]"
+    else:
+        raise Exception("multinumrange_custom is given None as a parameter")
+
+
+def multidaterange_custom(params=None):
+    if params:
+        return f"[{daterange_custom(**params)}, {daterange_custom(**params)}]"
+    else:
+        raise Exception("multidaterange_custom is given None as a parameter")
+
+
+data_func_map = {
+    MySQLDataType.BIGINT.value: {"func": fake.pyint,
+                                 "params": {"min_value": 0, "max_value": 9223372036854775808, "step": 1}},
+    MySQLDataType.BINARY.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 1, "step": 1}},
+    MySQLDataType.BIT.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 1, "step": 1}},
+    MySQLDataType.BLOB.value: {"func": fake.binary, "params": {"length": 1048576}},
+    MySQLDataType.BOOLEAN.value: {"func": fake.pybool, "params": {"truth_probability": 50}},
+    MySQLDataType.CHAR.value: {"func": fake.bothify, "params": {"text": "?"}},
+    MySQLDataType.DATE.value: {"func": fake.date, "params": {"pattern": '%Y-%m-%d'}},
+    MySQLDataType.DATETIME.value: {"func": fake.date_time, "params": {}},
+    MySQLDataType.DECIMAL.value: {"func": fake.pyfloat, "params": {"min_value": None, "max_value": None}},
+    MySQLDataType.DOUBLE.value: {"func": fake.pyfloat, "params": {"min_value": None, "max_value": None}},
+    MySQLDataType.FLOAT.value: {"func": fake.pyfloat, "params": {"min_value": None, "max_value": None}},
+    MySQLDataType.INTEGER.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
+    "INT": {"func": fake.pyint, "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
+    MySQLDataType.JSON.value: {"func": fake.json, "params": {}},
+    MySQLDataType.LONGBLOB.value: {"func": fake.binary, "params": {"length": 1048576}},
+    MySQLDataType.LONGTEXT.value: {"func": fake.sentence, "params": {}},
+    MySQLDataType.MEDIUMBLOB.value: {"func": fake.binary, "params": {"length": 1048576}},
+    MySQLDataType.MEDIUMINT.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
+    MySQLDataType.MEDIUMTEXT.value: {"func": fake.sentence, "params": {}},
+    MySQLDataType.NCHAR.value: {"func": fake.sentence, "params": {}},
+    MySQLDataType.NVCHAR.value: {"func": fake.sentence, "params": {}},
+    MySQLDataType.NUMBERIC.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
+    OracleDataType.NUMBER.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
+    MySQLDataType.SET.value: {"func": fake.pyset, "params": {}},
+    MySQLDataType.SMALLINT.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 32767, "step": 1}},
+    MySQLDataType.REAL.value: {"func": fake.pyfloat, "params": {"min_value": None, "max_value": None}},
+    MySQLDataType.TEXT.value: {"func": fake.sentence, "params": {}},
+    MySQLDataType.TIME.value: {"func": fake.time, "params": {"pattern": "%H:%M:%S"}},
+    MySQLDataType.TIMESTAMP.value: {"func": fake.unix_time, "params": {}},
+    MySQLDataType.TINYBLOB.value: {"func": fake.binary, "params": {"length": 1048576}},
+    MySQLDataType.TINYINT.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 255, "step": 1}},
+    MySQLDataType.TINYTEXT.value: {"func": fake.text, "params": {"max_nb_chars": 200}},
+    MySQLDataType.VARBINARY.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 1, "step": 1}},
+    MySQLDataType.VARCHAR.value: {"func": fake.word, "params": {}},
+    MySQLDataType.YEAR.value: {"func": fake.year, "params": {}},
+    PostgreSqlDataType.INET.value: {"func": fake.ipv4, "params": {"address_class": "c"}},
+    PostgreSqlDataType.CIDR.value: {"func": fake.ipv4, "params": {"address_class": "c"}},
+    PostgreSqlDataType.CITEXT.value: {"func": fake.pystr, "params": {}},
+    PostgreSqlDataType.UUID.value: {"func": fake.uuid4, "params": {}},
+    PostgreSqlDataType.MACADDR.value: {"func": fake.hexify, "params": {"text": '^^:^^:^^:^^:^^:^^'}},
+    PostgreSqlDataType.MACADDR8.value: {"func": fake.hexify, "params": {"text": '"^^:^^:^^:^^:^^:^^:^^:^^"'}},
+    PostgreSqlDataType.OID.value: {"func": fake.pyint, "params": {"min_value": 0, "max_value": 255, "step": 1}},
+    PostgreSqlDataType.REGCLASS.value: {"func": fake.language_name, "params": {}},
+    PostgreSqlDataType.REGCONFIG.value: {"func": fake.language_name, "params": {}},
+    PostgreSqlDataType.DOUBLE_PRECISION.value: {"func": fake.pyfloat, "params": {"min_value": None, "max_value": None}},
+    PostgreSqlDataType.BYTEA.value: {"func": fake.binary, "params": {"length": 255}},
+    PostgreSqlDataType.INTERVAL.value: {"func": fake.bothify, "params": {"text": "# hours"}},
+    PostgreSqlDataType.ARRAY.value: {"func": fake.pylist, "params": {}},
+    PostgreSqlDataType.HSTORE.value: {"func": fake.pyset, "params": {}},
+    PostgreSqlDataType.INT4RANGE.value: {"func": intrange_custom,
+                                         "params": {"min_value": 0, "max_value": 2000000000, "step": 1}},
+    PostgreSqlDataType.INT8RANGE.value: {"func": intrange_custom,
+                                         "params": {"min_value": 0, "max_value": 9000000000000000, "step": 1}},
+    PostgreSqlDataType.NUMRANGE.value: {"func": numrange_custom, "params": {}},
+    PostgreSqlDataType.DATERANGE.value: {"func": daterange_custom, "params": {}},
+    PostgreSqlDataType.INT4MULTIRANGE.value: {"func": multiintrange_custom,
+                                              "params": {"min_value": 0, "max_value": 2000000000, "step": 1}},
+    PostgreSqlDataType.INT8MULTIRANGE.value: {"func": multiintrange_custom,
+                                              "params": {"min_value": 0, "max_value": 9000000000000000, "step": 1}},
+    PostgreSqlDataType.NUMMULTIRANGE.value: {"func": multinumrange_custom, "params": {}},
+    PostgreSqlDataType.DATEMULTIRANGE.value: {"func": multidaterange_custom, "params": {}},
+    PostgreSqlDataType.JSONB.value: {"func": fake.json_bytes, "params": {}},
+    OracleDataType.BFILE.value: {"func": fake.binary, "params": {}},
+    OracleDataType.CLOB.value: {"func": fake.pystr, "params": {}},
+    OracleDataType.NCLOB.value: {"func": fake.pystr, "params": {}},
+    OracleDataType.RAW.value: {"func": fake.binary, "params": {}},
+    OracleDataType.BINARY_DOUBLE.value: {"func": fake.pyfloat,
+                                         "params": {"min_value": -9.9999999999999, "max_value": -9.9999999999999999}},
+    OracleDataType.BINARY_FLOAT.value: {"func": fake.pyfloat,
+                                        "params": {"min_value": -9.99999999999, "max_value": -9.99999999999}},
+    OracleDataType.LONG.value: {"func": fake.pyfloat, "params": {"min_value": None, "max_value": None}},
+    OracleDataType.NVARCHAR2.value: {"func": fake.word, "params": {}},
+    OracleDataType.ROWID.value: {"func": fake.pystr, "params": {}},
+    MSSQLDataType.DATETIME2.value: {"func": fake.date, "params": {"pattern": '%Y-%m-%d'}},
+    MSSQLDataType.DATETIMEOFFSET.value: {"func": fake.date_time, "params": {}},
+    MSSQLDataType.SMALLDATETIME.value: {"func": fake.date, "params": {"pattern": '%Y-%m-%d'}},
+    MSSQLDataType.ROWVERSION.value: {"func": fake.binary, "params": {}},
+    MSSQLDataType.UNIQUEIDENTIFIER.value: {"func": fake.hexify, "params": {"text": "^^^^-^^^-^^^^-^^^^-^^^-^^^^"}},
+    MSSQLDataType.SQL_VARIANT.value: {"func": fake.pyint,
+                                      "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
+    MSSQLDataType.XML.value: {"func": fake.xml, "params": {}},
+    "SERIAL": {"func": fake.pyint, "params": {"min_value": 0, "max_value": 200000000, "step": 1}},
+}
+
+
+def get_func_for_data_type(data_type):
+    func = data_func_map.get(data_type, None)
+    if func:
+        return func
+    else:
+        raise Exception
