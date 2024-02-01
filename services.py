@@ -1,4 +1,3 @@
-
 """
 
 Write methods that manipulate Table and column info here
@@ -13,6 +12,7 @@ def exceptionAutoIncrement(json_dict):
     except Exception:
         return False
 
+
 class Table:
 
     def __init__(self, columns, primary_key, alter, checks, index, partitioned_by, tablespace, schema, table_name):
@@ -25,6 +25,15 @@ class Table:
         self.tablespace = tablespace
         self.schema = schema
         self.table_name = table_name
+
+    def get_primary_key(self):
+        return self.primary_key
+
+    def get_table_name(self):
+        return self.table_name
+
+    def get_columns_objs(self):
+        return self.columns
 
     def add_columns(self, cols):
         """
@@ -70,9 +79,12 @@ class Table:
 
 class Column:
 
-    def __init__(self, name, type, size, references, unique, nullable, default, check ,autoincrement=None):
+    def __init__(self, name, dataType, size, references, unique, nullable, default, check, autoincrement=None):
         self.name = name
-        self.type = type
+        if isinstance(dataType, str):
+            self.dataType = dataType.upper()
+        else:
+            self.dataType = None
         self.size = size
         self.references = references
         self.unique = unique
@@ -81,8 +93,35 @@ class Column:
         self.check = check
         self.autoincrement = autoincrement
 
-    def generate_data(self):
-        pass
+    def get_references(self):
+        return self.references
+
+    def set_unique_true(self):
+        self.unique = True
+
+    def set_nullable_false(self):
+        self.nullable = False
+
+    def get_name(self):
+        return self.name
+
+    def get_size(self):
+        return self.size
+
+    def get_unique(self):
+        return self.unique
+
+    def get_nullable(self):
+        return self.nullable
+
+    def get_type(self):
+        return self.dataType
+
+    def get_default(self):
+        return self.default
+
+    def get_autoincrement(self):
+        return self.autoincrement
 
     def get_json_response(self):
         return self.__dict__
@@ -90,7 +129,6 @@ class Column:
     def __str__(self):
         # TODO: Can improve this
         return f"check : {self.check} , name:{self.name}"
-
 
     # Return column instances
     @staticmethod
@@ -117,6 +155,12 @@ class Reference:
         self.on_update = on_update
         self.deferrable_initially = deferrable_initially
         self.column = column
+
+    def get_column_name(self):
+        return self.column
+
+    def get_table_name(self):
+        return self.table
 
     @staticmethod
     def from_json(json_dict):
@@ -164,3 +208,29 @@ class AWSResponse:
     def get_json_response(self):
 
         return self.__dict__
+
+
+class Result:
+
+    def __init__(self, table_name, column_name, generated_data_list = []):
+        self.table_name = table_name
+        self.column_name = column_name
+        self.generated_data_list = generated_data_list
+
+    def set_table_name(self, name):
+        self.table_name = name
+
+    def get_table_name(self):
+        return self.table_name
+
+    def set_column_name(self, name):
+        self.column_name = name
+
+    def get_column_name(self):
+        return self.column_name
+
+    def set_generated_data_list(self, data):
+        self.generated_data_list = data
+
+    def get_generated_data_list(self):
+        return self.generated_data_list
