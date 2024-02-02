@@ -1,6 +1,6 @@
-from unittest import TestCase
-from logic import parse_ddl_script
 import json
+from unittest import TestCase
+from logic import parse_ddl_script, generate_data
 import constants
 from data_type_match import get_func_for_data_type, data_func_map
 
@@ -57,7 +57,8 @@ class ParseTesting(TestCase):
 ]
 
         output = parse_ddl_script(s)
-
+        result = generate_data(ddl_script=s)
+        print(result)
         self.assertEqual(output, expected)
 
     def test_return_foreign_key(self):
@@ -238,7 +239,7 @@ class ParseTesting(TestCase):
 
         print(result)
 
-    def test_all_providers(self):
+    def test_all_dataType_map_providers(self):
         all_keys = list(data_func_map.keys())
         all_keys_separated = []
         for key in all_keys:
@@ -259,3 +260,101 @@ class ParseTesting(TestCase):
                 result = func(**params)
 
             print(key + ": " + str(result))
+
+
+    def test_generate_date_for_sample_table_primary_key_given_after(self):
+        ddl_script = """CREATE TABLE Persons (
+    ID int NOT NULL,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    PRIMARY KEY (ID)
+); """
+
+        result = generate_data(ddl_script, None)
+
+        print(result)
+
+    def test_generate_data_for_sample_table_primary_key_given_in_column(self):
+
+        ddl_script = """
+            
+            CREATE TABLE Persons (
+    ID int NOT NULL PRIMARY KEY,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int
+);
+        
+        """
+
+        result = generate_data(ddl_script, None)
+
+        print(result)
+
+    def test_generate_data_for_table_with_foreign_key_simple(self):
+
+        ddl_script = """CREATE TABLE Orders (
+    OrderID int NOT NULL,
+    OrderNumber int NOT NULL,
+    PersonID int,
+    PRIMARY KEY (OrderID),
+    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+);"""
+
+        print(parse_ddl_script(ddl_script))
+
+        result = generate_data(ddl_script, None)
+
+        print(json.dumps(result, indent=4))
+
+
+    def test_generate_date_for_table_with_foreign_key_two_tables(self):
+
+        ddl_script = """
+        
+            CREATE TABLE CUSTOMERS(
+   ID INT NOT NULL,    
+   PRIMARY KEY (ID)
+);
+
+            CREATE TABLE ORDERS (
+   ID INT NOT NULL,
+   CUSTOMER_ID INT,
+   FOREIGN KEY(CUSTOMER_ID) 
+   REFERENCES CUSTOMERS(ID),
+   PRIMARY KEY (ID)
+);
+        
+        """
+
+        result = generate_data(ddl_script, None)
+
+        print(json.dumps(result, indent=4, default=str))
+        # print(result)
+
+    def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
+            ddl_script = """
+    
+            CREATE TABLE ORDERS (
+       ID INT NOT NULL,
+       CUSTOMER_ID INT,
+       FOREIGN KEY(CUSTOMER_ID) 
+       REFERENCES CUSTOMERS(ID),
+       PRIMARY KEY (ID)
+    );
+    
+                CREATE TABLE CUSTOMERS(
+   ID INT NOT NULL,    
+   PRIMARY KEY (ID)
+);
+
+            
+
+            """
+
+            result = generate_data(ddl_script, None)
+
+            print(json.dumps(result, indent=4, default=str))
+            # print(result)
+

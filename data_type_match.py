@@ -42,6 +42,16 @@ def multidaterange_custom(params=None):
     return f"[{daterange_custom(params)}, {daterange_custom(params)}]"
 
 
+def serial_custom(params=None, rows=10):
+    values_list = []
+    start = fake.pyint(min_value=0, max_value=20000)
+    for _ in range(10):
+        start += 1
+        values_list.append(start)
+
+    return values_list
+
+
 data_func_map = {
     MySQLDataType.BIGINT.value[0]: {"func": fake.pyint,
                                     "params": {"min_value": 0, "max_value": 9223372036854775808, "step": 1}},
@@ -111,10 +121,10 @@ data_func_map = {
     PostgreSqlDataType.NUMMULTIRANGE.value[0]: {"func": multinumrange_custom, "params": {}},
     PostgreSqlDataType.DATEMULTIRANGE.value[0]: {"func": multidaterange_custom, "params": {}},
     PostgreSqlDataType.JSONB.value[0]: {"func": fake.json_bytes, "params": {}},
-    OracleDataType.BFILE.value[0]: {"func": fake.binary, "params": {}},
+    OracleDataType.BFILE.value[0]: {"func": fake.binary, "params": {"length": 255}},
     OracleDataType.CLOB.value[0]: {"func": fake.pystr, "params": {}},
     OracleDataType.NCLOB.value[0]: {"func": fake.pystr, "params": {}},
-    OracleDataType.RAW.value[0]: {"func": fake.binary, "params": {}},
+    OracleDataType.RAW.value[0]: {"func": fake.binary, "params": {"length": 255}},
     OracleDataType.BINARY_DOUBLE.value[0]: {"func": fake.pyfloat,
                                             "params": {"min_value": -9.9999999999999,
                                                        "max_value": 9.9999999999999999}},
@@ -126,12 +136,12 @@ data_func_map = {
     MSSQLDataType.DATETIME2.value[0]: {"func": fake.date, "params": {"pattern": '%Y-%m-%d'}},
     MSSQLDataType.DATETIMEOFFSET.value[0]: {"func": fake.date_time, "params": {}},
     MSSQLDataType.SMALLDATETIME.value[0]: {"func": fake.date, "params": {"pattern": '%Y-%m-%d'}},
-    MSSQLDataType.ROWVERSION.value[0]: {"func": fake.binary, "params": {}},
+    MSSQLDataType.ROWVERSION.value[0]: {"func": fake.binary, "params": {"length": 255}},
     MSSQLDataType.UNIQUEIDENTIFIER.value[0]: {"func": fake.hexify, "params": {"text": "^^^^-^^^-^^^^-^^^^-^^^-^^^^"}},
     MSSQLDataType.SQL_VARIANT.value[0]: {"func": fake.pyint,
                                          "params": {"min_value": 0, "max_value": 2147483647, "step": 1}},
     MSSQLDataType.XML.value[0]: {"func": fake.xml, "params": {}},
-    "SERIAL": {"func": fake.pyint, "params": {"min_value": 0, "max_value": 200000000, "step": 1}},
+    "SERIAL": {"func": serial_custom, "params": {"rows": 10}},
 }
 
 
