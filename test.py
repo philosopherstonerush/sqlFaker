@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from logic import parse_ddl_script, generate_data
 import constants
@@ -290,3 +291,70 @@ class ParseTesting(TestCase):
         result = generate_data(ddl_script, None)
 
         print(result)
+
+    def test_generate_data_for_table_with_foreign_key_simple(self):
+
+        ddl_script = """CREATE TABLE Orders (
+    OrderID int NOT NULL,
+    OrderNumber int NOT NULL,
+    PersonID int,
+    PRIMARY KEY (OrderID),
+    FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+);"""
+
+        print(parse_ddl_script(ddl_script))
+
+        result = generate_data(ddl_script, None)
+
+        print(json.dumps(result, indent=4))
+
+
+    def test_generate_date_for_table_with_foreign_key_two_tables(self):
+
+        ddl_script = """
+        
+            CREATE TABLE CUSTOMERS(
+   ID INT NOT NULL,    
+   PRIMARY KEY (ID)
+);
+
+            CREATE TABLE ORDERS (
+   ID INT NOT NULL,
+   CUSTOMER_ID INT,
+   FOREIGN KEY(CUSTOMER_ID) 
+   REFERENCES CUSTOMERS(ID),
+   PRIMARY KEY (ID)
+);
+        
+        """
+
+        result = generate_data(ddl_script, None)
+
+        print(json.dumps(result, indent=4, default=str))
+        # print(result)
+
+    def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
+            ddl_script = """
+    
+            CREATE TABLE ORDERS (
+       ID INT NOT NULL,
+       CUSTOMER_ID INT,
+       FOREIGN KEY(CUSTOMER_ID) 
+       REFERENCES CUSTOMERS(ID),
+       PRIMARY KEY (ID)
+    );
+    
+                CREATE TABLE CUSTOMERS(
+   ID INT NOT NULL,    
+   PRIMARY KEY (ID)
+);
+
+            
+
+            """
+
+            result = generate_data(ddl_script, None)
+
+            print(json.dumps(result, indent=4, default=str))
+            # print(result)
+

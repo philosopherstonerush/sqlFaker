@@ -122,16 +122,21 @@ def generate_data(ddl_script, custom_data=None, size=10):
 
             if has_references:
                 ref = col.get_references()
-                already_have_value = result.get(ref.get_table_name()).get(ref.get_column_name(), None)
-                if already_have_value is not None:
-                    res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
-                    result.get(table_name).update({column_name: res_obj})
-                else:
-                    col_list = col_with_references.get(ref.get_table_name(), None)
-                    if col_list is not None:
-                        col_list.update({ref.get_column_name(): res_obj})
-                    col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
-                continue
+
+                is_referring_table_provided = True if result.get(ref.get_table_name(), None) is not None else False
+
+                if is_referring_table_provided:
+                    already_have_value = result.get(ref.get_table_name()).get(ref.get_column_name(), None)
+                    if already_have_value is not None:
+                        res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
+                        result.get(table_name).update({column_name: res_obj})
+                    else:
+                        col_list = col_with_references.get(ref.get_table_name(), None)
+                        if col_list is not None:
+                            col_list.update({ref.get_column_name(): res_obj})
+                        col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
+                        result.get(table_name).update({column_name: res_obj})
+                    continue
 
             if is_primary_key:
                 col.set_unique_true()
@@ -144,6 +149,11 @@ def generate_data(ddl_script, custom_data=None, size=10):
             if is_referenced is True:
                 referring_res_obj = col_with_references.get(table_name).get(column_name)
                 referring_res_obj.set_generated_data_list(genedated_date)
+
+    for table in result:
+        for key in result[table]:
+            value = result[table][key]
+            result[table][key] = value.get_generated_data_list()
 
     return result
 
