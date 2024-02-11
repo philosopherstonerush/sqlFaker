@@ -73,7 +73,6 @@ class ParseTesting(TestCase):
 
         output = parse_ddl_script(s)
         result = generate_data(ddl_script=s)
-        print(result)
         self.assertEqual(output, expected)
 
     def test_return_foreign_key(self):
@@ -296,13 +295,15 @@ class ParseTesting(TestCase):
 
     def test_generate_data_for_table_with_foreign_key_simple(self):
 
-        ddl_script = """CREATE TABLE Orders (
+        ddl_script = """
+        CREATE TABLE Orders (
     OrderID int NOT NULL,
     OrderNumber int NOT NULL,
     PersonID int,
     PRIMARY KEY (OrderID),
     FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
-);"""
+        );
+"""
 
         print(parse_ddl_script(ddl_script))
 
@@ -310,7 +311,8 @@ class ParseTesting(TestCase):
 
         print(json.dumps(result, indent=4))
 
-    def test_generate_date_for_table_with_foreign_key_two_tables(self):
+def test_generate_date_for_table_with_foreign_key_two_tables(self):
+
 
         ddl_script = """
         
@@ -334,7 +336,8 @@ class ParseTesting(TestCase):
         print(json.dumps(result, indent=4, default=str))
         # print(result)
 
-    def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
+
+def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
         ddl_script = """
     
             CREATE TABLE ORDERS (
@@ -349,9 +352,6 @@ class ParseTesting(TestCase):
    ID INT NOT NULL,    
    PRIMARY KEY (ID)
 );
-
-            
-
             """
 
         result = generate_data(ddl_script, None)
@@ -369,7 +369,16 @@ class ParseTesting(TestCase):
         result = generate_data(ddl_script)
         print(result)
 
-    def test_custom_providers(self):
+
+def test_table_generate_data_for_sample_table(self):
+
+        ddl_script = """ CREATE TABLE Department( DeptNo int PRIMARY KEY, DName varchar(266), Location varchar(266) ); CREATE TABLE Employee(EmpNo int, EmpName varchar(266), Salary int, DeptNo int);
+);"""
+        result = generate_data(ddl_script, None, False)
+
+        print(json.dumps(result, indent=4, default=str))
+        
+def test_custom_providers(self):
         for i in provider_dict_map:
             print("%s = %s" % (i, provider_dict_map[i]["func"](**provider_dict_map[i]["param"])))
 
