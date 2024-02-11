@@ -1,4 +1,6 @@
 import json
+import sys
+
 from data_type_match import get_func_for_data_type
 from simple_ddl_parser import DDLParser
 from services import AWSResponse, Table, Reference, Column, Result
@@ -38,7 +40,7 @@ def parse_ddl_script(ddl_script, opt=False):
     except Exception as e:
         return AWSResponse(
             status_code=400,
-            body="error: DDL script cannot be parsed"
+            body=json.dumps(e.__cause__)
         ).get_json_response()
 
 
@@ -79,83 +81,94 @@ CREATE TABLE consultants(
 """
 
 
-def generate_data(ddl_script, custom_data=None, size=10):
-    rows_to_generate = size
+def generate_data(ddl_script, custom_data=None, size=10, opt=False):
 
-    # {table_name: {col_name_1: res_obj_1, col_name_2: res_obj_2}
-    result = dict()
-    parsed_info = parse_ddl_script(ddl_script)
+    try:
+        rows_to_generate = size
 
-    table_objs = []
+        # {table_name: {col_name_1: res_obj_1, col_name_2: res_obj_2}
+        result = dict()
+        parsed_info = parse_ddl_script(ddl_script)
 
-    # {ref_table_name: {ref_col_name: res_obj_current}
-    col_with_references = dict()
+        table_objs = []
 
-    for elem in parsed_info:
-        table_objs.append(Table.from_json(elem))
+        # {ref_table_name: {ref_col_name: res_obj_current}
+        col_with_references = dict()
 
-    for table in table_objs:
-        result.update({table.get_table_name(): dict()})
+        for elem in parsed_info:
+            if "comments" not in elem:
+                table_objs.append(Table.from_json(elem))
 
-    for table in table_objs:
+        for table in table_objs:
+            result.update({table.get_table_name(): dict()})
 
-        table_name = table.get_table_name()
-        table_columns = table.get_columns_objs()
-        primary_key = table.get_primary_key()
+        for table in table_objs:
 
-        for col in table_columns:
+            table_name = table.get_table_name()
+            table_columns = table.get_columns_objs()
+            primary_key = table.get_primary_key()
 
-            column_name = col.get_name()
-            is_primary_key = False
-            has_references = False
-            is_referenced = False
-            res_obj = Result(table_name, column_name)
+            for col in table_columns:
 
-            if primary_key == column_name:
-                is_primary_key = True
-            if col.get_references() is not None:
-                has_references = True
-            if col_with_references.get(table_name, None) is not None:
-                cols_references = col_with_references.get(table_name)
-                if column_name in cols_references:
-                    is_referenced = True
+                column_name = col.get_name()
+                is_primary_key = False
+                has_references = False
+                is_referenced = False
+                res_obj = Result(table_name, column_name)
 
-            if has_references:
-                ref = col.get_references()
+                if primary_key == column_name:
+                    is_primary_key = True
+                if col.get_references() is not None:
+                    has_references = True
+                if col_with_references.get(table_name, None) is not None:
+                    cols_references = col_with_references.get(table_name)
+                    if column_name in cols_references:
+                        is_referenced = True
 
-                is_referring_table_provided = True if result.get(ref.get_table_name(), None) is not None else False
+                if has_references:
+                    ref = col.get_references()
 
-                if is_referring_table_provided:
-                    already_have_value = result.get(ref.get_table_name()).get(ref.get_column_name(), None)
-                    if already_have_value is not None:
-                        res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
-                        result.get(table_name).update({column_name: res_obj})
-                    else:
-                        col_list = col_with_references.get(ref.get_table_name(), None)
-                        if col_list is not None:
-                            col_list.update({ref.get_column_name(): res_obj})
-                        col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
-                        result.get(table_name).update({column_name: res_obj})
-                    continue
+                    is_referring_table_provided = True if result.get(ref.get_table_name(), None) is not None else False
 
-            if is_primary_key:
-                col.set_unique_true()
-                col.set_nullable_false()
+                    if is_referring_table_provided:
+                        already_have_value = result.get(ref.get_table_name()).get(ref.get_column_name(), None)
+                        if already_have_value is not None:
+                            res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
+                            result.get(table_name).update({column_name: res_obj})
+                        else:
+                            col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
+                            result.get(table_name).update({column_name: res_obj})
+                        continue
 
-            genedated_date = _get_data(col, rows_to_generate)
-            res_obj.set_generated_data_list(genedated_date)
-            result.get(table_name).update({column_name: res_obj})
+                if is_primary_key:
+                    col.set_unique_true()
+                    col.set_nullable_false()
 
-            if is_referenced is True:
-                referring_res_obj = col_with_references.get(table_name).get(column_name)
-                referring_res_obj.set_generated_data_list(genedated_date)
+                genedated_date = _get_data(col, rows_to_generate)
+                res_obj.set_generated_data_list(genedated_date)
+                result.get(table_name).update({column_name: res_obj})
 
-    for table in result:
-        for key in result[table]:
-            value = result[table][key]
-            result[table][key] = value.get_generated_data_list()
+                if is_referenced is True:
+                    referring_res_obj = col_with_references.get(table_name).get(column_name)
+                    referring_res_obj.set_generated_data_list(genedated_date)
 
-    return result
+        for table in result:
+            for key in result[table]:
+                value = result[table][key]
+                result[table][key] = value.get_generated_data_list()
+
+        if opt:
+            return AWSResponse(
+                status_code=200,
+                body=json.dumps(result)
+            ).get_json_response()
+        else:
+            return result
+    except Exception as e:
+        return AWSResponse(
+            status_code=400,
+            body=json.dumps(e.__cause__)
+        ).get_json_response()
 
 
 def _get_data(col: Column, size):
