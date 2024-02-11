@@ -2,6 +2,8 @@ import json
 from data_type_match import get_func_for_data_type
 from simple_ddl_parser import DDLParser
 from services import AWSResponse, Table, Reference, Column, Result
+from Custom_providers import provider_dict_map, get_provider_function
+from extract_custom_data import TableDatabase
 
 """
 
@@ -80,6 +82,11 @@ CREATE TABLE consultants(
 
 
 def generate_data(ddl_script, custom_data=None, size=10):
+
+    if custom_data:
+        db= TableDatabase(custom_data)
+        table_obj_dict=db.ret_table_obj() #{'table_name1': <object>, 'table_name2': <object>}
+
     rows_to_generate = size
 
     # {table_name: {col_name_1: res_obj_1, col_name_2: res_obj_2}
@@ -103,12 +110,22 @@ def generate_data(ddl_script, custom_data=None, size=10):
         table_columns = table.get_columns_objs()
         primary_key = table.get_primary_key()
 
+        if custom_data:
+            table_obj = table_obj_dict[table_name]
+            col_obj_dict = table_obj.ret_col_obj() #{"colname1': <object>, 'colname2': <object>}
+
+
         for col in table_columns:
 
             column_name = col.get_name()
             is_primary_key = False
             has_references = False
             is_referenced = False
+            col_in_custom_data=False
+
+            if custom_data:
+                col_in_custom_data = True if column_name in col_obj_dict.keys() else False
+
             res_obj = Result(table_name, column_name)
 
             if primary_key == column_name:
@@ -131,9 +148,6 @@ def generate_data(ddl_script, custom_data=None, size=10):
                         res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
                         result.get(table_name).update({column_name: res_obj})
                     else:
-                        col_list = col_with_references.get(ref.get_table_name(), None)
-                        if col_list is not None:
-                            col_list.update({ref.get_column_name(): res_obj})
                         col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
                         result.get(table_name).update({column_name: res_obj})
                     continue
@@ -142,13 +156,16 @@ def generate_data(ddl_script, custom_data=None, size=10):
                 col.set_unique_true()
                 col.set_nullable_false()
 
-            genedated_date = _get_data(col, rows_to_generate)
-            res_obj.set_generated_data_list(genedated_date)
+            if col_in_custom_data:
+                generated_data = _get_data(col,rows_to_generate,col_obj_dict[column_name].provider)
+            else:
+                generated_data = _get_data(col, rows_to_generate)
+            res_obj.set_generated_data_list(generated_data)
             result.get(table_name).update({column_name: res_obj})
 
             if is_referenced is True:
                 referring_res_obj = col_with_references.get(table_name).get(column_name)
-                referring_res_obj.set_generated_data_list(genedated_date)
+                referring_res_obj.set_generated_data_list(generated_data)
 
     for table in result:
         for key in result[table]:
@@ -158,22 +175,41 @@ def generate_data(ddl_script, custom_data=None, size=10):
     return result
 
 
-def _get_data(col: Column, size):
-    data_type = col.get_type()
-
-    generator = get_func_for_data_type(data_type)
-
-    func = generator.get("func")
-    params = generator.get("params")
-
-    if data_type == "SERIAL":
-        return func(params)
-    else:
-        res = []
-        if "custom" in func.__name__:
+def _get_data(col, size, provider =None):
+    if provider:
+        if col.get_autoincrement():
+            provider = "SERIAL"
+            func, param = get_provider_function(provider)
+            res= []
             for _ in range(size):
-                res.append(func(params))
-        else:
-            for _ in range(size):
-                res.append(func(**params))
+                value=func(None if _ == 0 else value)
+                res.append(value)
+            return res
+        func,param = get_provider_function(provider)
+        res =[]
+        for _ in range(size):
+            res.append(func(**param))
         return res
+    else:
+        data_type = col.get_type()
+
+        if col.get_autoincrement():
+            data_type="SERIAL"
+
+        generator = get_func_for_data_type(data_type)
+
+        func = generator.get("func")
+        params = generator.get("params")
+
+        if data_type == "SERIAL":
+            return func(params)
+        else:
+            res = []
+            if "custom" in func.__name__:
+                for _ in range(size):
+                    res.append(func(params))
+            else:
+                for _ in range(size):
+                    res.append(func(**params))
+            return res
+

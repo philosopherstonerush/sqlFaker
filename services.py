@@ -5,12 +5,7 @@ Write methods that manipulate Table and column info here
 """
 
 
-def exceptionAutoIncrement(json_dict):
-    try:
-        json_dict["autoincrement"]
-        return True
-    except Exception:
-        return False
+
 
 
 class Table:
@@ -142,7 +137,7 @@ class Column:
             json_dict["nullable"],
             json_dict["default"],
             json_dict["check"],
-            json_dict["autoincrement"] if exceptionAutoIncrement(json_dict) else None
+            json_dict["autoincrement"] if "autoincrement" in json_dict else None
         )
 
 
