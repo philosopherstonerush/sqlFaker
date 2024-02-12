@@ -16,8 +16,7 @@ def get_parse_self():
         return parse
     elif action == "generate":
         custom_data = data["custom_data"]
-        print(custom_data, sys.stderr)
-        generated_data = generate_data(script, custom_data)
+        generated_data = generate_data(script, custom_data, 10, True)
         return generated_data
     else:
         return None
