@@ -311,7 +311,7 @@ class ParseTesting(TestCase):
 
         print(json.dumps(result, indent=4))
 
-def test_generate_date_for_table_with_foreign_key_two_tables(self):
+    def test_generate_date_for_table_with_foreign_key_two_tables(self):
 
 
         ddl_script = """
@@ -337,7 +337,7 @@ def test_generate_date_for_table_with_foreign_key_two_tables(self):
         # print(result)
 
 
-def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
+    def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
         ddl_script = """
     
             CREATE TABLE ORDERS (
@@ -370,7 +370,7 @@ def test_generate_date_for_table_with_foreign_key_two_tables_reversed(self):
         print(result)
 
 
-def test_table_generate_data_for_sample_table(self):
+    def test_table_generate_data_for_sample_table(self):
 
         ddl_script = """ CREATE TABLE Department( DeptNo int PRIMARY KEY, DName varchar(266), Location varchar(266) ); CREATE TABLE Employee(EmpNo int, EmpName varchar(266), Salary int, DeptNo int);
 );"""
@@ -378,7 +378,7 @@ def test_table_generate_data_for_sample_table(self):
 
         print(json.dumps(result, indent=4, default=str))
         
-def test_custom_providers(self):
+    def test_custom_providers(self):
         for i in provider_dict_map:
             print("%s = %s" % (i, provider_dict_map[i]["func"](**provider_dict_map[i]["param"])))
 
