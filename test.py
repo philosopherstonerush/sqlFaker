@@ -359,7 +359,7 @@ class ParseTesting(TestCase):
         print(json.dumps(result, indent=4, default=str))
         # print(result)
 
-    def test_foreignkey_Reference_from_same_table(self):
+    def test_foreignkey_reference_from_same_table(self):
         ddl_script = """
         create table department(
         deptid int primary key,
@@ -374,10 +374,11 @@ class ParseTesting(TestCase):
 
         ddl_script = """ CREATE TABLE Department( DeptNo int PRIMARY KEY, DName varchar(266), Location varchar(266) ); CREATE TABLE Employee(EmpNo int, EmpName varchar(266), Salary int, DeptNo int);
 );"""
-        result = generate_data(ddl_script, None, False)
+        result = generate_data(ddl_script, None, 10, False)
 
         print(json.dumps(result, indent=4, default=str))
-        
+
+    # TODO: add support for pillow - needed for random image genration
     def test_custom_providers(self):
         for i in provider_dict_map:
             print("%s = %s" % (i, provider_dict_map[i]["func"](**provider_dict_map[i]["param"])))
@@ -546,3 +547,57 @@ class ParseTesting(TestCase):
 
         result = generate_data(ddl_script, custom_data, 10)
         print(result)
+    def test_for_valid_custom_generator(self):
+        custom_data = {
+            "consultants": [
+                {
+                    "id": {
+                        "subprovider": "address",
+                        "provider": "address"
+                    }
+                },
+                {
+                    "first_name": {
+                        "subprovider": "address",
+                        "provider": "address"
+                    }
+                },
+                {
+                    "last_name": {
+                        "subprovider": "address",
+                        "provider": "address"
+                    }
+                },
+                {
+                    "email": {
+                        "subprovider": "address",
+                        "provider": "address"
+                    }
+                },
+                {
+                    "departments_id": {
+                        "subprovider": "address",
+                        "provider": "address"
+                    }
+                },
+                {
+                    "contract_date": {
+                        "subprovider": "address",
+                        "provider": "address"
+                    }
+                }
+            ]
+        }
+        ddl_script = """
+                        create table consultants(
+                        id int primary key auto_increment,
+                        first_name varchar[20] unique,
+                        last_name varchar[20],
+                        email varchar[20],
+                        departments_id int,
+                        contract_date date,
+                        foreign key(last_name) references consultants(first_name)
+                        );
+                        """
+        result = generate_data(ddl_script, custom_data, 10)
+        print(json.dumps(result, indent=4, default=str))
