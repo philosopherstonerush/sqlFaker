@@ -125,6 +125,8 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
             has_references = False
             is_referenced = False
             col_in_custom_data=False
+            has_references= False
+            is_primary_key= False
 
             if custom_data:
                 col_in_custom_data = True if column_name in col_obj_dict.keys() else False
@@ -139,6 +141,7 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
                 cols_references = col_with_references.get(table_name)
                 if column_name in cols_references:
                     is_referenced = True
+            is_referring_table_provided = False
 
             if has_references:
                 ref = col.get_references()
@@ -184,8 +187,8 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
             return result
     except Exception as e:
         return AWSResponse(
-            status_code=400,
-            body=json.dumps(e.__cause__)
+            status_code= 400,
+            body= json.dumps(e.__cause__)
         ).get_json_response()
 
 
