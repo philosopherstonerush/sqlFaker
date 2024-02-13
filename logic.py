@@ -178,7 +178,7 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
         if opt:
             return AWSResponse(
                 status_code=200,
-                body=json.dumps(result)
+                body=json.dumps(result, default=str)
             ).get_json_response()
         else:
             return result
