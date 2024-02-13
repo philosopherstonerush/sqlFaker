@@ -189,19 +189,17 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
         ).get_json_response()
 
 
-def _get_data(col, size, provider=None):
-    breakpoint()
-
-    if provider:
+def _get_data(col, size, subprovider=None):
+    if subprovider:
         if col.get_autoincrement():
-            provider = "SERIAL"
-            func, param = get_provider_function(provider)
+            subprovider = "SERIAL"
+            func, param = get_provider_function(subprovider)
             res = []
-            for _ in range(size):
-                value = func(None if _ == 0 else value)
+            for i in range(size):
+                value = func(None if i == 0 else value)
                 res.append(value)
             return res
-        func, param = get_provider_function(provider)
+        func, param = get_provider_function(subprovider)
         res = []
         for _ in range(size):
             res.append(func(**param))

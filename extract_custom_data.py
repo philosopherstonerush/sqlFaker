@@ -1,4 +1,4 @@
-class Column:
+class ColumnEx:
     def __init__(self, name, provider=None):
         self.name = name
         self.provider = provider
@@ -10,14 +10,14 @@ class Column:
         return self.name
 
 
-class Table:
+class TableEx:
     def __init__(self, name):
         self.name = name
         self.column_obj_dict = {}
 
     def add_column(self, column_name, column_data):
-        Col = Column(column_name, column_data["subprovider"])
-        self.column_obj_dict[Col.name] = Col
+        col = ColumnEx(column_name, column_data["subprovider"])
+        self.column_obj_dict[col.name] = col
 
     def ret_col_obj(self):
         return self.column_obj_dict
@@ -30,7 +30,7 @@ class TableDatabase:
 
     def extract_tables(self, data):
         for table_name, columns in data.items():
-            table = Table(table_name)
+            table = TableEx(table_name)
             for dictionary in columns:
                 for column_name, column_data in dictionary.items():
                     table.add_column(column_name, column_data)

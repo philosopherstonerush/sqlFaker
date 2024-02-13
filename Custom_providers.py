@@ -161,7 +161,7 @@ provider_dict_map = {
     "texts": {"func": fake.texts, "param": {"nb_texts": 3, "ext_word_list": None}},
     "word": {"func": fake.word, "param": {"ext_word_list": None}},
     "words": {"func": fake.words, "param": {"nb": 3, "ext_word_list": None}},
-    "binary": {"func": fake.binary, "param": {"length": 1048576}},
+    "binary": {"func": fake.binary, "param": {"length": 104}},
     "boolean": {"func": fake.boolean, "param": {"chance_of_getting_true": 50}},
     "csv": {"func": fake.csv, "param": {"header": None, "data_columns": ('{{name}}', '{{address}}'), "num_rows": 10}},
     "dsv": {"func": fake.dsv, "param": {"header": None, "data_columns": ('{{name}}', '{{address}}'), "num_rows": 10}},
