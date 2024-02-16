@@ -453,7 +453,7 @@ class ParseTesting(TestCase):
                 },
                 {
                     "last_name": {
-                        "subprovider": "nOne",
+                        "subprovider": "last_name",
                         "provider": "NONE"
                     }
                 },
@@ -602,3 +602,58 @@ class ParseTesting(TestCase):
                         """
       result = generate_data(ddl_script, custom_data, 10)
       print(result)
+
+    def test_custom_data_none_subprovider(self):
+        custom_data = {
+            "consultants": [
+                {
+                    "id": {
+                        "subprovider": "pyint",
+                        "provider": "NONE"
+                    }
+                },
+                {
+                    "first_name": {
+                        "subprovider": "first_name",
+                        "provider": "NONE"
+                    }
+                },
+                {
+                    "last_name": {
+                        "subprovider": "nOne",
+                        "provider": "NONE"
+                    }
+                },
+                {
+                    "email": {
+                        "subprovider": "email",
+                        "provider": "NONE"
+                    }
+                },
+                {
+                    "departments_id": {
+                        "subprovider": "pyint",
+                        "provider": "NONE"
+                    }
+                },
+                {
+                    "contract_date": {
+                        "subprovider": "date",
+                        "provider": "NONE"
+                    }
+                }
+            ]
+        }
+        ddl_script = """
+                                create table consultants(
+                                id int primary key,
+                                first_name varchar(20) unique,
+                                last_name varchar(20),
+                                email varchar(20),
+                                departments_id int,
+                                contract_date date
+                                );
+                                """
+
+        result = generate_data(ddl_script, custom_data, 10)
+        print(result)
