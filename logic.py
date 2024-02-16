@@ -4,7 +4,7 @@ import sys
 from data_type_match import get_func_for_data_type
 from simple_ddl_parser import DDLParser
 from services import AWSResponse, Table, Reference, Column, Result
-from Custom_providers import provider_dict_map, get_provider_function
+from custom_providers import provider_dict_map, get_provider_function
 from extract_custom_data import TableDatabase
 
 """
@@ -30,7 +30,7 @@ def parse_ddl_script(ddl_script, opt=False):
         for elem in tables_list:
             if elem != "":
                 parse = DDLParser(elem, silent=True).run(output_mode="sql")
-                if parse:
+                if parse and "comments" not in parse[0]:
                     parsed_result.append(parse[0])
         if opt:
             return AWSResponse(
@@ -86,8 +86,8 @@ CREATE TABLE consultants(
 def generate_data(ddl_script, custom_data=None, size=10, opt=False):
     try:
         if custom_data:
-            db= TableDatabase(custom_data)
-            table_obj_dict=db.ret_table_obj() #{'table_name1': <object>, 'table_name2': <object>}
+            db = TableDatabase(custom_data)
+            table_obj_dict = db.ret_table_obj()  # {'table_name1': <object>, 'table_name2': <object>}
 
         rows_to_generate = size
 
@@ -113,65 +113,63 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
             table_columns = table.get_columns_objs()
             primary_key = table.get_primary_key()
 
-        if custom_data:
-            table_obj = table_obj_dict[table_name]
-            col_obj_dict = table_obj.ret_col_obj() #{"colname1': <object>, 'colname2': <object>}
-
-
-        for col in table_columns:
-
-            column_name = col.get_name()
-            is_primary_key = False
-            has_references = False
-            is_referenced = False
-            col_in_custom_data=False
-            has_references= False
-            is_primary_key= False
-
             if custom_data:
-                col_in_custom_data = True if column_name in col_obj_dict.keys() else False
+                table_obj = table_obj_dict[table_name]
+                col_obj_dict = table_obj.ret_col_obj()  # {"colname1': <object>, 'colname2': <object>}
 
-            res_obj = Result(table_name, column_name)
+            for col in table_columns:
 
-            if primary_key == column_name:
-                is_primary_key = True
-            if col.get_references() is not None:
-                has_references = True
-            if col_with_references.get(table_name, None) is not None:
-                cols_references = col_with_references.get(table_name)
-                if column_name in cols_references:
-                    is_referenced = True
-            is_referring_table_provided = False
+                column_name = col.get_name()
+                is_referenced = False
+                col_in_custom_data = False
+                has_references = False
+                is_primary_key = False
 
-            if has_references:
-                ref = col.get_references()
+                if custom_data:
+                    col_in_custom_data = True if column_name in col_obj_dict.keys() else False
+                    sub_provider = col_obj_dict[column_name].provider
 
-                is_referring_table_provided = True if result.get(ref.get_table_name(), None) is not None else False
+                res_obj = Result(table_name, column_name)
 
-            if is_referring_table_provided:
-                already_have_value = result.get(ref.get_table_name()).get(ref.get_column_name(), None)
-                if already_have_value is not None:
-                    res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
-                    result.get(table_name).update({column_name: res_obj})
+                if primary_key == column_name:
+                    is_primary_key = True
+                if col.get_references() is not None:
+                    has_references = True
+                if col_with_references.get(table_name, None) is not None:
+                    cols_references = col_with_references.get(table_name)
+                    if column_name in cols_references:
+                        is_referenced = True
+                is_referring_table_provided = False
+
+                if has_references:
+                    ref = col.get_references()
+
+                    is_referring_table_provided = True if result.get(ref.get_table_name(), None) is not None else False
+
+                if is_referring_table_provided:
+                    already_have_value = result.get(ref.get_table_name()).get(ref.get_column_name(), None)
+                    if already_have_value is not None:
+                        res_obj.set_generated_data_list(already_have_value.get_generated_data_list())
+                        result.get(table_name).update({column_name: res_obj})
+                    else:
+                        col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
+                        result.get(table_name).update({column_name: res_obj})
+                    continue
+
+                if is_primary_key:
+                    col.set_unique_true()
+                    col.set_nullable_false()
+
+                if col_in_custom_data:
+                    generated_data = _get_data(col, rows_to_generate, sub_provider)
                 else:
-                    col_with_references.update({ref.get_table_name(): {ref.get_column_name(): res_obj}})
-                    result.get(table_name).update({column_name: res_obj})
-                continue
+                    generated_data = _get_data(col, rows_to_generate)
+                res_obj.set_generated_data_list(generated_data)
+                result.get(table_name).update({column_name: res_obj})
 
-            if is_primary_key:
-                col.set_unique_true()
-                col.set_nullable_false()
-
-            if col_in_custom_data:
-                generated_data = _get_data(col,rows_to_generate,col_obj_dict[column_name].provider)
-            else:
-                generated_data = _get_data(col, rows_to_generate)
-            res_obj.set_generated_data_list(generated_data)
-            result.get(table_name).update({column_name: res_obj})
-
-            if is_referenced is True:
-                referring_res_obj = col_with_references.get(table_name).get(column_name)
-                referring_res_obj.set_generated_data_list(generated_data)
+                if is_referenced is True:
+                    referring_res_obj = col_with_references.get(table_name).get(column_name)
+                    referring_res_obj.set_generated_data_list(generated_data)
 
         for table in result:
             for key in result[table]:
@@ -187,34 +185,31 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
             return result
     except Exception as e:
         return AWSResponse(
-            status_code= 400,
-            body= json.dumps(e.__cause__)
+            status_code=400,
+            body= json.dumps(str(e))
         ).get_json_response()
 
 
-def _get_data(col, size, provider =None):
-    if provider:
+def _get_data(col, size, subprovider=None):
+    if "NONE" not in subprovider.upper() and subprovider:
         if col.get_autoincrement():
-            provider = "SERIAL"
-            func, param = get_provider_function(provider)
-            res= []
-            for _ in range(size):
-                value=func(None if _ == 0 else value)
+            subprovider = "SERIAL"
+            func, param = get_provider_function(subprovider)
+            res = []
+            for i in range(size):
+                value = func(None if i == 0 else value)
                 res.append(value)
             return res
-        func,param = get_provider_function(provider)
-        res =[]
+        func, param = get_provider_function(subprovider)
+        res = []
         for _ in range(size):
             res.append(func(**param))
         return res
     else:
         data_type = col.get_type()
-
         if col.get_autoincrement():
-            data_type="SERIAL"
-
+            data_type = "SERIAL"
         generator = get_func_for_data_type(data_type)
-
         func = generator.get("func")
         params = generator.get("params")
 
@@ -229,4 +224,3 @@ def _get_data(col, size, provider =None):
                 for _ in range(size):
                     res.append(func(**params))
             return res
-
