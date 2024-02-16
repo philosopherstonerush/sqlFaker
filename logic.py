@@ -185,12 +185,12 @@ def generate_data(ddl_script, custom_data=None, size=10, opt=False):
     except Exception as e:
         return AWSResponse(
             status_code=400,
-            body=json.dumps(e.__cause__)
+            body=json.dumps(str(e))
         ).get_json_response()
 
 
 def _get_data(col, size, subprovider=None):
-    if subprovider:
+    if "NONE" not in subprovider.upper() and subprovider:
         if col.get_autoincrement():
             subprovider = "SERIAL"
             func, param = get_provider_function(subprovider)
@@ -199,34 +199,27 @@ def _get_data(col, size, subprovider=None):
                 value = func(None if i == 0 else value)
                 res.append(value)
             return res
-        if subprovider != "NONE":
-            func, param = get_provider_function(subprovider)
-            res = []
-            for _ in range(size):
-                res.append(func(**param))
-            return res
-        else:
-            return _get_data_by_data_type(col, size)
-    else:
-        return _get_data_by_data_type(col, size)
-
-
-def _get_data_by_data_type(col, size):
-    data_type = col.get_type()
-    if col.get_autoincrement():
-        data_type = "SERIAL"
-    generator = get_func_for_data_type(data_type)
-    func = generator.get("func")
-    params = generator.get("params")
-
-    if data_type == "SERIAL":
-        return func(params)
-    else:
+        func, param = get_provider_function(subprovider)
         res = []
-        if "custom" in func.__name__:
-            for _ in range(size):
-                res.append(func(params))
-        else:
-            for _ in range(size):
-                res.append(func(**params))
+        for _ in range(size):
+            res.append(func(**param))
         return res
+    else:
+        data_type = col.get_type()
+        if col.get_autoincrement():
+            data_type = "SERIAL"
+        generator = get_func_for_data_type(data_type)
+        func = generator.get("func")
+        params = generator.get("params")
+
+        if data_type == "SERIAL":
+            return func(params)
+        else:
+            res = []
+            if "custom" in func.__name__:
+                for _ in range(size):
+                    res.append(func(params))
+            else:
+                for _ in range(size):
+                    res.append(func(**params))
+            return res

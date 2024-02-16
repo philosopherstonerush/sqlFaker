@@ -150,4 +150,4 @@ def get_func_for_data_type(data_type):
     if func:
         return func
     else:
-        raise Exception("Cannot find the required data type")
+        raise Exception(f"Cannot find the required data type {data_type}")
