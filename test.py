@@ -608,3 +608,11 @@ class ParseTesting(TestCase):
 
         result = lambda_handler(req, None)
         print(json.dumps(result, indent=4, default=str))
+
+    def test_generate_with_lambda_none(self):
+        req = {
+            "body": "{\n\n        \"script\": \"create table consultants( id int primary key auto_increment, first_name varchar[20] unique, last_name varchar[20], email varchar[20], departments_id int, contract_date date, foreign key(last_name) references consultants(first_name) );\",\n        \"action\": \"generate\",\n        \"custom_data\": \"{\\\"consultants\\\":[{\\\"id\\\":{\\\"subprovider\\\":\\\"NONE\\\",\\\"NONE\\\":\\\"currency\\\"}},{\\\"first_name\\\":{\\\"subprovider\\\":\\\"cryptocurrency\\\",\\\"provider\\\":\\\"currency\\\"}},{\\\"last_name\\\":{\\\"subprovider\\\":\\\"country_calling_code\\\",\\\"provider\\\":\\\"phone_number\\\"}},{\\\"email\\\":{\\\"subprovider\\\":\\\"first_name\\\",\\\"provider\\\":\\\"person\\\"}},{\\\"departments_id\\\":{\\\"subprovider\\\":\\\"binary\\\",\\\"provider\\\":\\\"misc\\\"}},{\\\"contract_date\\\":{\\\"subprovider\\\":\\\"paragraph\\\",\\\"provider\\\":\\\"lorem\\\"}}]}\"\n\n}"
+        }
+
+        result = lambda_handler(req, None)
+        print(json.dumps(result, indent=4, default=str))
