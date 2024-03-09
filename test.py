@@ -5,7 +5,7 @@ import constants
 from data_type_match import get_func_for_data_type, data_func_map
 from custom_providers import provider_dict_map
 from lambda_function import lambda_handler
-
+import time
 # Write tests here
 
 def test_provider_mapping_for_DATE():
@@ -181,7 +181,7 @@ class ParseTesting(TestCase):
 
     def test_provider_mapping_for_BIGINT(self):
 
-        data_type = constants.MySQLDataType.BIGINT.value
+        data_type = constants.MySQLDataType.BIGINT.value[0]
 
         func_dict = get_func_for_data_type(data_type)
 
@@ -194,7 +194,7 @@ class ParseTesting(TestCase):
 
     def test_provider_mapping_for_CITEXT(self):
 
-        data_type = constants.PostgreSqlDataType.CITEXT.value
+        data_type = constants.PostgreSqlDataType.CITEXT.value[0]
 
         func_dict = get_func_for_data_type(data_type)
 
@@ -206,7 +206,7 @@ class ParseTesting(TestCase):
         print(result)
 
     def test_provider_mapping_for_JSON(self):
-        data_type = constants.MySQLDataType.JSON.value
+        data_type = constants.MySQLDataType.JSON.value[0]
 
         func_dict = get_func_for_data_type(data_type)
 
@@ -218,7 +218,7 @@ class ParseTesting(TestCase):
         print(result)
 
     def test_provider_mapping_for_numrange(self):
-        data_type = constants.PostgreSqlDataType.NUMRANGE.value
+        data_type = constants.PostgreSqlDataType.NUMRANGE.value[0]
 
         func_dict = get_func_for_data_type(data_type)
 
@@ -230,7 +230,7 @@ class ParseTesting(TestCase):
         print(result)
 
     def test_provider_mapping_for_daterange(self):
-        data_type = constants.PostgreSqlDataType.DATERANGE.value
+        data_type = constants.PostgreSqlDataType.DATERANGE.value[0]
 
         func_dict = get_func_for_data_type(data_type)
 

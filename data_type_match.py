@@ -112,7 +112,7 @@ data_func_map = {
                                             "params": {"min_value": 0, "max_value": 2000000000, "step": 1}},
     PostgreSqlDataType.INT8RANGE.value[0]: {"func": intrange_custom,
                                             "params": {"min_value": 0, "max_value": 9000000000000000, "step": 1}},
-    PostgreSqlDataType.NUMRANGE.value[0]: {"func": numrange_custom, "params": {}},
+    "NUMRANGE": {"func": numrange_custom, "params": {}},
     PostgreSqlDataType.DATERANGE.value[0]: {"func": daterange_custom, "params": {}},
     PostgreSqlDataType.INT4MULTIRANGE.value[0]: {"func": multiintrange_custom,
                                                  "params": {"min_value": 0, "max_value": 2000000000, "step": 1}},

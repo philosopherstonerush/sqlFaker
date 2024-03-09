@@ -23,7 +23,7 @@ class TableEx:
         return self.column_obj_dict
 
 
-class TableDatabase:
+class TableCustomData:
     def __init__(self, data):
         self.table_obj = {}
         self.extract_tables(data)
